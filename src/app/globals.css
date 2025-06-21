@@ -1,5 +1,7 @@
 @import "tailwindcss";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -156,4 +158,132 @@
   10% { opacity: 1; }
   90% { opacity: 1; }
   100% { transform: translateY(-120px); opacity: 0; }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 0 0% 98%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 1. Главный контейнер-заголовок H1. Он станет МАСКОЙ. */
+.ciderly-title-mask {
+  position: relative; /* Обязательно для позиционирования дочерних слоев */
+  
+  /* Текст нужен только для создания формы маски, поэтому делаем его прозрачным */
+  color: transparent; 
+
+  /* --- МАГИЯ МАСКИ --- */
+  /* Создаем сплошную заливку, которая будет нашей маской */
+  -webkit-mask-image: linear-gradient(black, black);
+  mask-image: linear-gradient(black, black);
+
+  /* Приказываем браузеру обрезать эту маску по форме текста */
+  -webkit-mask-clip: text;
+  mask-clip: text;
+}
+
+/* 2. Слой с градиентом. Он будет НА ДНЕ внутри маски. */
+.ciderly-gradient-layer {
+  position: absolute;
+  inset: 0; /* Растягиваем на весь родительский контейнер */
+  z-index: 1; /* Помещаем на нижний слой */
+  
+  /* Немного изменяем градиент для лучшего зацикливания */
+  background: linear-gradient(90deg, #a8e063, #56ab2f, #ef4444, #a8e063);
+  
+  /* --- НОВЫЕ СТРОКИ --- */
+  /* 1. Делаем фон в два раза шире, чтобы было куда двигаться */
+  background-size: 200% 200%;
+  
+  /* 2. Применяем нашу анимацию */
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+/* 3. Контейнер для пузырьков. Он будет ПОВЕРХ градиента. */
+.ciderly-bubbles-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* Помещаем поверх градиента */
+  overflow: hidden; /* Обрезаем пузырьки, если они вылетают (не обязательно, но хорошая практика) */
+}
+
+/* 4. Стили для самих пузырьков. */
+.bubble {
+  position: absolute;
+  bottom: -20px; /* Начинаем чуть ниже */
+  border-radius: 50%;
+  
+  /* Белые, полупрозрачные пузырьки - как на картинке */
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Легкое свечение */
+
+  opacity: 0;
+  animation: rise-final 5s infinite ease-in;
+}
+
+/* 5. Анимация подъема пузырьков. */
+@keyframes rise-final {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-140px); opacity: 0; }
+}
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
