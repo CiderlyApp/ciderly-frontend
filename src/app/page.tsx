@@ -21,12 +21,11 @@ export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col">
       
-      {/* ---  HEADER --- */}
+      {/* --- HEADER --- */}
       <header className="absolute top-0 left-0 z-20 w-full p-6 flex items-center justify-between">
-        <a href="/" className="text-2xl font-bold">
-        { /* CIDERLY */}
-        </a>
         
+
+        {/* Навигация */}
         <nav aria-label="Main navigation">
           <ul className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <li><a href="#" className="hover:text-foreground transition-colors">Блог</a></li>
@@ -35,6 +34,7 @@ export default function LandingPage() {
           </ul>
         </nav>
 
+        {/* Кнопка входа осталась справа */}
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" className="h-10 w-10 p-2">
@@ -80,11 +80,9 @@ export default function LandingPage() {
       </main>
 
       {/* ---  FOOTER --- */}
-      <footer className="absolute bottom-0 left-0 z-10 w-full p-6 flex items-center justify-between">
-        
-        <div className="text-sm text-muted-foreground">
-          ciderly 2025
-        </div>
+      
+      <footer className="absolute bottom-0 left-0 z-10 w-full p-6 text-center text-sm text-muted-foreground">
+        ciderly 2025
       </footer>
     </div>
   );
