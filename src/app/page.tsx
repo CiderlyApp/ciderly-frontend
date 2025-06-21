@@ -19,7 +19,7 @@ const Bubbles = () => {
 
 // --- Основной компонент страницы ---
 export default function LandingPage() {
-  const finalReadiness = 68;
+  const finalReadiness = 69;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
