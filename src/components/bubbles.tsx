@@ -14,7 +14,6 @@ const BubblesComponent = () => {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
 
   useEffect(() => {
-    // --- Изменения здесь ---
     
     // 1. Увеличиваем количество на 20% (было 15, стало 18)
     const bubbleCount = 118; 
