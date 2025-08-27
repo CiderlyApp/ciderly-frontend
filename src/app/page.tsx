@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { LoginForm } from '@/components/auth/login-form';
 import { LogIn } from 'lucide-react';
 
-const FINAL_READINESS = 69;
+const FINAL_READINESS = 71;
 
 export default function LandingPage() {
   const [progress, setProgress] = useState(0);
@@ -34,7 +34,7 @@ export default function LandingPage() {
           </ul>
         </nav>
 
-        {/* Кнопка входа осталась справа */}
+        {/* Кнопка входа */}
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" className="h-10 w-10 p-2">
