@@ -82,7 +82,7 @@ export default function LandingPage() {
       {/* ---  FOOTER --- */}
       
       <footer className="absolute bottom-0 left-0 z-10 w-full p-6 text-center text-sm text-muted-foreground">
-        ciderly 2025
+        Ciderly 2025
       </footer>
     </div>
   );
