@@ -3,7 +3,7 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import api from '@/lib/api';
+// import api from '@/lib/api'; // <--- УДАЛЕНО
 
 interface User {
   id: string;
@@ -26,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Функция для декодирования токена
 const decodeToken = (token: string): User | null => {
   try {
+    // Бэкенд возвращает sub, email, role, nickname в токене
     const decoded: { sub: string; email: string; role: User['role'], nickname: string } = jwtDecode(token);
     return { id: decoded.sub, email: decoded.email, role: decoded.role, nickname: decoded.nickname };
   } catch (error) {
@@ -33,7 +34,6 @@ const decodeToken = (token: string): User | null => {
     return null;
   }
 };
-
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

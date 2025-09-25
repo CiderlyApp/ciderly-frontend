@@ -1,6 +1,6 @@
 // src/lib/api.ts
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode'; // <--- УДАЛЕНО
 
 // Указываем базовый URL вашего API
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
@@ -15,9 +15,12 @@ const api = axios.create({
 // Interceptor для добавления токена в каждый запрос
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    // В браузере window.localStorage доступен
+    if (typeof window !== 'undefined') {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
     }
     return config;
   },
@@ -29,6 +32,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    // Проверяем, что мы в браузере
+    if (typeof window === 'undefined') {
+        return Promise.reject(error);
+    }
     
     // Если ошибка 401 и это не повторный запрос после обновления токена
     if (error.response.status === 401 && !originalRequest._retry) {
@@ -63,6 +71,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export default api;
