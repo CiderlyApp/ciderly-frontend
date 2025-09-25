@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api"; 
 import { AxiosError } from "axios";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+// Упрощаем пропсы компонента - он больше не принимает className или ...props
+export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,19 +27,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     setError('');
 
     try {
-      // API бэкенда ожидает camelCase
       const response = await api.post('/auth/login', { email, password });
       
-      // Бэкенд возвращает camelCase
       const { accessToken, refreshToken } = response.data.data;
       auth.login(accessToken, refreshToken);
       
-      // После успешного входа перенаправляем в админку
       router.push('/admin');
 
-    } catch (err: unknown) { // <--- ИЗМЕНЕНО: unknown вместо any
+    } catch (err: unknown) {
       console.error(err);
-      // Проверяем, является ли ошибка ошибкой Axios, чтобы безопасно получить message
       if (err instanceof AxiosError && err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
@@ -51,7 +47,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    // Обертка теперь является частью самого компонента, а не передается через props
+    <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Вход в аккаунт</CardTitle>
