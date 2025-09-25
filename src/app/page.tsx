@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { LoginForm } from '@/components/auth/login-form';
 import { LogIn } from 'lucide-react';
 
-const FINAL_READINESS = 72;
+const FINAL_READINESS = 73;
 
 export default function LandingPage() {
   const [progress, setProgress] = useState(0);
