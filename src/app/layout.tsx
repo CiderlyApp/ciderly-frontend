@@ -2,7 +2,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers"; // <--- ИМПОРТИРУЕМ НОВЫЙ КОМПОНЕНТ
+import { Providers } from "@/components/providers"; 
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         {/* Оборачиваем дочерние элементы в Providers */}
         <Providers>{children}</Providers>
+        <SonnerToaster /> {/* <--- Добавляем компонент для уведомлений */}
       </body>
     </html>
   );

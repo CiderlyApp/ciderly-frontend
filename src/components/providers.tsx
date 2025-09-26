@@ -3,12 +3,15 @@
 
 import { ReactNode } from 'react';
 import { AuthProvider } from '@/context/AuthContext';
+import { QueryProvider } from './query-provider'; 
 
 export function Providers({ children }: { children: ReactNode }) {
   // Здесь в будущем можно будет добавлять и другие провайдеры
   return (
     <AuthProvider>
-      {children}
+      <QueryProvider> {/* <--- Оборачиваем */}
+        {children}
+      </QueryProvider>
     </AuthProvider>
   );
 }
