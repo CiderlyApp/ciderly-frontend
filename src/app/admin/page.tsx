@@ -4,7 +4,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Settings } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+// ---> ИСПРАВЛЕНИЕ: 'arrayMove' удален из этой строки <---
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -13,7 +14,7 @@ import { DashboardSettings } from '@/components/admin/dashboard/dashboard-settin
 import { WidgetCard } from '@/components/admin/dashboard/widget-card';
 import { KpiCard } from '@/components/admin/dashboard/widgets/kpi-widget';
 import { UsersByCountryChart } from '@/components/admin/dashboard/widgets/users-by-country-chart';
-import { mockDashboardApi } from '@/lib/mock-api'; // <-- Наша заглушка
+import { mockDashboardApi } from '@/lib/mock-api';
 
 // Компонент-обертка для D&D
 const SortableWidget = ({ widget, children }: { widget: Widget, children: React.ReactNode }) => {
@@ -32,7 +33,7 @@ const SortableWidget = ({ widget, children }: { widget: Widget, children: React.
 export default function AdminDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
-    queryFn: mockDashboardApi, // <-- Используем заглушку. Заменить на api.get(...) когда будет готов бэкенд
+    queryFn: mockDashboardApi,
   });
   
   const { widgets, reorderWidgets, toggleWidgetVisibility } = useDashboardLayout();
