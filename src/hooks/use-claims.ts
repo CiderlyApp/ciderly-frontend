@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios'; 
-
+import { ApiErrorResponse } from '@/types/api';
 // ... тип Claim  ...
 export type Claim = {
   id: string;
@@ -33,9 +33,7 @@ export const useProcessClaim = () => {
       queryClient.invalidateQueries({ queryKey: ['claims'] });
       toast.success(variables.action === 'approve' ? 'Заявка успешно одобрена' : 'Заявка успешно отклонена');
     },
-    // --- ИСПРАВЛЕНИЕ: Заменяем 'any' на 'AxiosError' ---
-    onError: (error: AxiosError) => {
-      // @ts-ignore
+    onError: (error: AxiosError<ApiErrorResponse>) => {
       const errorMessage = error.response?.data?.message || 'Не удалось обработать заявку.';
       toast.error(`Ошибка: ${errorMessage}`);
     }
