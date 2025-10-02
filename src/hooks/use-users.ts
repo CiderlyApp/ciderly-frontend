@@ -2,26 +2,45 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { User } from '@/app/admin/users/columns'; // Импортируем тип User
 
-// Хук для мутации (изменения) статуса блокировки
+// Хук для мутации (изменения) статуса блокировки (уже есть)
 export const useUpdateUserBlockStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, isBlocked }: { userId: string, isBlocked: boolean }) => {
       const endpoint = isBlocked ? `/admin/users/${userId}/block` : `/admin/users/${userId}/unblock`;
-      // Для блокировки можно передавать причину, пока оставим пустым
       const payload = isBlocked ? { reason: 'Blocked by admin' } : {};
       const { data } = await api.patch(endpoint, payload);
       return data;
     },
     onSuccess: (data, variables) => {
-      // После успешной мутации, инвалидируем кэш пользователей, чтобы таблица обновилась
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(variables.isBlocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован');
     },
     onError: (error) => {
       toast.error(`Ошибка: ${error.message}`);
+    }
+  });
+};
+
+// --- НОВОЕ: Хук для смены роли ---
+export const useUpdateUserRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: User['role'] }) => {
+      const { data } = await api.patch(`/admin/users/${userId}/role`, { newRole });
+      return data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success(`Роль пользователя успешно изменена на "${variables.newRole}"`);
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || 'Не удалось изменить роль.';
+      toast.error(`Ошибка: ${errorMessage}`);
     }
   });
 };
