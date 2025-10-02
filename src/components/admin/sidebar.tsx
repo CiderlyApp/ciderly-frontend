@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, Beer } from 'lucide-react'; // Иконки
+import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, Beer, LogOut } from 'lucide-react'; // <-- Добавили иконку LogOut
+import { Button } from '../ui/button';
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname.startsWith(href); // Используем startsWith для активных под-путей
   return (
     <Link 
       href={href}
@@ -24,7 +25,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 };
 
 export function Sidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // <-- Получаем функцию logout из контекста
 
   if (!user) return null;
 
@@ -36,54 +37,64 @@ export function Sidebar() {
           <span>Ciderly Admin</span>
         </Link>
       </div>
-      <nav className="flex-1 p-4">
-        <ul className="space-y-1">
-          <li>
-            <NavLink href="/admin">
-              <BarChart3 className="h-4 w-4" />
-              Дашборд
-            </NavLink>
-          </li>
-          
-          {/* Ссылки только для Админов */}
-          {user.role === 'admin' && (
+      
+      {/* --- ИЗМЕНЕНИЕ: Добавляем flex-grow и flex-col для основного блока --- */}
+      <div className="flex flex-1 flex-col justify-between">
+        <nav className="p-4">
+          <ul className="space-y-1">
             <li>
-              <NavLink href="/admin/users">
-                <Users className="h-4 w-4" />
-                Пользователи
+              <NavLink href="/admin">
+                <BarChart3 className="h-4 w-4" />
+                Дашборд
               </NavLink>
             </li>
-          )}
-          
-          {/* Ссылки для Админов и Модераторов */}
-          {(user.role === 'admin' || user.role === 'moderator') && (
-            <li>
-              <NavLink href="/admin/claims">
-                <ShieldCheck className="h-4 w-4" />
-                Заявки
-              </NavLink>
-            </li>
-          )}
-          
-          {/* Ссылки для Бизнеса (и админов/модераторов) */}
-          {(user.role === 'admin' || user.role === 'moderator' || user.role === 'business') && (
-            <>
+            
+            {user.role === 'admin' && (
               <li>
-                <NavLink href="/admin/places">
-                  <ShoppingBag className="h-4 w-4" />
-                  Места
+                <NavLink href="/admin/users">
+                  <Users className="h-4 w-4" />
+                  Пользователи
                 </NavLink>
               </li>
+            )}
+            
+            {/* --- ИЗМЕНЕНИЕ: Ссылка на заявки для админов и модераторов --- */}
+            {(user.role === 'admin' || user.role === 'moderator') && (
               <li>
-                <NavLink href="/admin/manufacturers">
-                  <Building className="h-4 w-4" />
-                  Производители
+                <NavLink href="/admin/claims">
+                  <ShieldCheck className="h-4 w-4" />
+                  Заявки
                 </NavLink>
               </li>
-            </>
-          )}
-        </ul>
-      </nav>
+            )}
+            
+            {(user.role === 'admin' || user.role === 'moderator' || user.role === 'business') && (
+              <>
+                <li>
+                  <NavLink href="/admin/places">
+                    <ShoppingBag className="h-4 w-4" />
+                    Места
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink href="/admin/manufacturers">
+                    <Building className="h-4 w-4" />
+                    Производители
+                  </NavLink>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+
+        {/* --- НОВОЕ: Блок для кнопки выхода --- */}
+        <div className="mt-auto p-4 border-t">
+            <Button variant="ghost" className="w-full justify-start" onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Выход
+            </Button>
+        </div>
+      </div>
     </aside>
   );
 }
