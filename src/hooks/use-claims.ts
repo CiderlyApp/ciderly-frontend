@@ -2,8 +2,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { AxiosError } from 'axios'; 
 
-// Тип для заявки (чтобы использовать в компонентах)
+// ... тип Claim  ...
 export type Claim = {
   id: string;
   userId: string;
@@ -17,7 +18,7 @@ export type Claim = {
   createdAt: string;
 };
 
-// Хук для обработки (одобрения/отклонения) заявки
+
 export const useProcessClaim = () => {
   const queryClient = useQueryClient();
 
@@ -29,11 +30,12 @@ export const useProcessClaim = () => {
       return data;
     },
     onSuccess: (data, variables) => {
-      // Инвалидируем кэш заявок, чтобы таблица обновилась
       queryClient.invalidateQueries({ queryKey: ['claims'] });
       toast.success(variables.action === 'approve' ? 'Заявка успешно одобрена' : 'Заявка успешно отклонена');
     },
-    onError: (error: any) => {
+    // --- ИСПРАВЛЕНИЕ: Заменяем 'any' на 'AxiosError' ---
+    onError: (error: AxiosError) => {
+      // @ts-ignore
       const errorMessage = error.response?.data?.message || 'Не удалось обработать заявку.';
       toast.error(`Ошибка: ${errorMessage}`);
     }

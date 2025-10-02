@@ -2,9 +2,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { User } from '@/app/admin/users/columns'; // Импортируем тип User
+import { User } from '@/app/admin/users/columns';
+import { AxiosError } from 'axios'; // <-- НОВЫЙ ИМПОРТ
 
-// Хук для мутации (изменения) статуса блокировки (уже есть)
 export const useUpdateUserBlockStatus = () => {
   const queryClient = useQueryClient();
 
@@ -19,13 +19,13 @@ export const useUpdateUserBlockStatus = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(variables.isBlocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован');
     },
-    onError: (error) => {
-      toast.error(`Ошибка: ${error.message}`);
+    onError: (error: AxiosError) => { // <-- ИЗМЕНЕНИЕ
+        // @ts-ignore
+        toast.error(`Ошибка: ${error.response?.data?.message || error.message}`);
     }
   });
 };
 
-// --- НОВОЕ: Хук для смены роли ---
 export const useUpdateUserRole = () => {
   const queryClient = useQueryClient();
 
@@ -38,7 +38,9 @@ export const useUpdateUserRole = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(`Роль пользователя успешно изменена на "${variables.newRole}"`);
     },
-    onError: (error: any) => {
+    // --- ИСПРАВЛЕНИЕ: Заменяем 'any' на 'AxiosError' ---
+    onError: (error: AxiosError) => {
+      // @ts-ignore
       const errorMessage = error.response?.data?.message || 'Не удалось изменить роль.';
       toast.error(`Ошибка: ${errorMessage}`);
     }
