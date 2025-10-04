@@ -20,14 +20,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 // Типы для справочников
 type DirectoryItem = { id: number | string; name: string };
 
-// --- ИСПРАВЛЕНИЕ: Упрощаем схему, чтобы избежать конфликтов типов ---
 const formSchema = z.object({
   name: z.string().min(2, { message: "Название обязательно." }),
   type: z.string().min(1, { message: "Тип обязателен." }),
+  abv: z.any().optional(),
   manufacturerId: z.string().uuid({ message: "Выберите производителя." }),
   countryId: z.string().min(1, { message: "Выберите страну." }),
   regionId: z.string().min(1, { message: "Выберите регион." }),
-  abv: z.any().optional(), // <-- Упрощаем до any(), валидация будет в onSubmit
   description: z.string().optional(),
 });
 
@@ -40,17 +39,18 @@ interface CiderFormProps {
 export function CiderForm({ initialData }: CiderFormProps) {
   const router = useRouter();
   const { mutate: saveCider, isPending } = useCreateOrUpdateCider();
-  const isEditMode = !!initialData;
+  // --- ИСПРАВЛЕНИЕ: Удаляем неиспользуемую переменную ---
+  // const isEditMode = !!initialData;
   
   const form = useForm<CiderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
       type: initialData?.type || '',
+      abv: initialData?.abv || '',
       manufacturerId: initialData?.manufacturerId || undefined,
       countryId: initialData?.countryId?.toString() || undefined,
       regionId: initialData?.regionId?.toString() || undefined,
-      abv: initialData?.abv || '', // <-- Инициализируем пустой строкой
       description: initialData?.description || '',
     },
   });
@@ -153,7 +153,8 @@ export function CiderForm({ initialData }: CiderFormProps) {
 
         <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => router.back()}>Отмена</Button>
-            <Button type="submit" disabled={isPending}>{isPending ? 'Сохранение...' : 'Сохранить'}</Button>
+            {/* --- ИСПРАВЛЕНИЕ: Используем initialData напрямую для определения текста кнопки --- */}
+            <Button type="submit" disabled={isPending}>{isPending ? 'Сохранение...' : (!!initialData ? 'Сохранить' : 'Создать')}</Button>
         </div>
       </form>
     </Form>
