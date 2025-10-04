@@ -5,12 +5,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, Beer, LogOut } from 'lucide-react'; // <-- Добавили иконку LogOut
+// --- ИЗМЕНЕНИЕ: Заменили иконку Beer на Wine ---
+import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine } from 'lucide-react';
 import { Button } from '../ui/button';
 
+// --- НОВОЕ: Указываем версию админки ---
+const ADMIN_VERSION = "0.1.0";
+
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  // Используем startsWith для подсветки активного раздела, кроме дашборда
   const pathname = usePathname();
-  const isActive = pathname.startsWith(href); // Используем startsWith для активных под-путей
+  const isActive = href === '/admin' ? pathname === href : pathname.startsWith(href);
   return (
     <Link 
       href={href}
@@ -25,23 +30,25 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 };
 
 export function Sidebar() {
-  const { user, logout } = useAuth(); // <-- Получаем функцию logout из контекста
+  const { user, logout } = useAuth();
 
   if (!user) return null;
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-background md:flex">
+      {/* --- ИЗМЕНЕНИЕ: Обновили блок заголовка --- */}
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/admin" className="flex items-center gap-2 font-semibold">
-          <Beer className="h-6 w-6" />
+          <Wine className="h-6 w-6" /> {/* <-- Новая иконка */}
           <span>Ciderly Admin</span>
         </Link>
       </div>
+      {/* ------------------------------------------- */}
       
-      {/* --- ИЗМЕНЕНИЕ: Добавляем flex-grow и flex-col для основного блока --- */}
       <div className="flex flex-1 flex-col justify-between">
         <nav className="p-4">
           <ul className="space-y-1">
+            {/* ... (список ссылок без изменений) ... */}
             <li>
               <NavLink href="/admin">
                 <BarChart3 className="h-4 w-4" />
@@ -58,7 +65,6 @@ export function Sidebar() {
               </li>
             )}
             
-            {/* --- ИЗМЕНЕНИЕ: Ссылка на заявки для админов и модераторов --- */}
             {(user.role === 'admin' || user.role === 'moderator') && (
               <li>
                 <NavLink href="/admin/claims">
@@ -87,8 +93,12 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        {/* --- НОВОЕ: Блок для кнопки выхода --- */}
         <div className="mt-auto p-4 border-t">
+            {/* --- НОВОЕ: Добавили номер версии --- */}
+            <div className="mb-2 text-center text-xs text-muted-foreground">
+              Версия: {ADMIN_VERSION}
+            </div>
+            {/* --------------------------------- */}
             <Button variant="ghost" className="w-full justify-start" onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Выход
