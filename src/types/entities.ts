@@ -38,4 +38,34 @@ export type Claim = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   adminComment: string | null;
   createdAt: string;
+  
+};
+
+export type Manufacturer = {
+  id: string;
+  name: string;
+  city: string | null;
+  countryName: string | null;
+  regionName?: string | null; // Добавим на всякий случай
+  subscribersCount?: number;
+  createdAt?: string;
+  description?: string | null;
+  website?: string | null;
+  logoUrl?: string | null;
+  regionId?: number; // Для форм
+  countryId?: number; // Для форм
+};
+
+export type Cider = {
+  id: string;
+  name: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  type: string;
+  manufacturerName: string;
+  // Поля для формы
+  manufacturerId?: string;
+  countryId?: number;
+  regionId?: number;
+  abv?: number | null;
+  description?: string | null;
 };

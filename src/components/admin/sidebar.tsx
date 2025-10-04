@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 // --- ИЗМЕНЕНИЕ: Заменили иконку Beer на Wine ---
-import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine } from 'lucide-react';
+import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine, GlassWater } from 'lucide-react';
 import { Button } from '../ui/button';
 
 // --- НОВОЕ: Указываем версию админки ---
@@ -86,6 +86,12 @@ export function Sidebar() {
                   <NavLink href="/admin/manufacturers">
                     <Building className="h-4 w-4" />
                     Производители
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink href="/admin/ciders">
+                    <GlassWater className="h-4 w-4" />
+                    Напитки
                   </NavLink>
                 </li>
               </>
