@@ -3,7 +3,7 @@ import axios from 'axios';
 // import { jwtDecode } from 'jwt-decode'; // <--- УДАЛЕНО
 
 // Указываем базовый URL вашего API
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://ciderly.app/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ciderly.app/api';
 
 const api = axios.create({
   baseURL: API_URL,
