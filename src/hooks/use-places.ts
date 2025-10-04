@@ -1,5 +1,6 @@
 // src/hooks/use-places.ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
@@ -47,6 +48,51 @@ export const useArchivePlace = () => {
     },
     onError: (error: AxiosError<ApiErrorResponse>) => {
       toast.error(`Ошибка архивации: ${error.response?.data?.message || error.message}`);
+    },
+  });
+};
+
+// --- НОВОЕ: Хук для получения одного места ---
+export const useGetPlace = (placeId: string | null) => {
+  return useQuery({
+    queryKey: ['place', placeId],
+    queryFn: async (): Promise<Place> => {
+      if (!placeId) throw new Error("ID места не предоставлен");
+      const { data } = await api.get(`/places/${placeId}`);
+      return data.data;
+    },
+    enabled: !!placeId, // Запрос будет выполнен только если placeId существует
+  });
+};
+
+
+// --- НОВОЕ: Хук для создания/обновления места ---
+export const useCreateOrUpdatePlace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (placeData: Partial<Place> & { id?: string }) => {
+      const { id, ...payload } = placeData;
+      if (id) {
+        // Режим обновления
+        const { data } = await api.patch(`/places/${id}`, payload);
+        return data.data;
+      } else {
+        // Режим создания
+        const { data } = await api.post('/places', payload);
+        return data.data;
+      }
+    },
+    onSuccess: (data, variables) => {
+      const isUpdate = !!variables.id;
+      // Инвалидируем и список мест, и конкретное место
+      queryClient.invalidateQueries({ queryKey: ['places'] });
+      queryClient.invalidateQueries({ queryKey: ['place', variables.id] });
+      toast.success(isUpdate ? 'Место успешно обновлено' : 'Место успешно создано');
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      const errorMessage = error.response?.data?.message || 'Произошла ошибка.';
+      toast.error(`Ошибка: ${errorMessage}`);
     },
   });
 };

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Place } from "@/types/entities"
 import { useModeratePlace, useArchivePlace } from "@/hooks/use-places"
-
+import Link from 'next/link';
 // Компонент для меню действий
 const ActionsCell = ({ row }: { row: { original: Place } }) => {
   const place = row.original;
@@ -30,8 +30,8 @@ const ActionsCell = ({ row }: { row: { original: Place } }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Действия</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => alert("Редактирование...")}>
-            Редактировать
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/places/${place.id}/edit`}>Редактировать</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
 
