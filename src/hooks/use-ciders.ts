@@ -6,6 +6,9 @@ import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '@/types/api';
 import { Cider } from '@/types/entities';
 
+// --- ИСПРАВЛЕНИЕ: Тип вынесен за пределы функции ---
+type CiderDirectoryItem = Pick<Cider, 'id' | 'name' | 'manufacturerName'>;
+
 export const useDeleteCider = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -27,7 +30,7 @@ export const useGetCider = (ciderId: string | null) => {
     queryFn: async (): Promise<Cider> => {
       if (!ciderId) throw new Error("ID напитка не предоставлен");
       const { data } = await api.get(`/ciders/${ciderId}`);
-      return data.data; // Предполагается, что API возвращает { data: {...} }
+      return data.data;
     },
     enabled: !!ciderId,
   });
@@ -57,4 +60,16 @@ export const useCreateOrUpdateCider = () => {
       toast.error(`Ошибка: ${error.response?.data?.message || 'Произошла ошибка.'}`);
     },
   });
+};
+
+// Получение полного списка сидров для справочников
+export const useGetCidersDirectory = () => {
+    return useQuery({
+        queryKey: ['ciders-directory'],
+        queryFn: async (): Promise<CiderDirectoryItem[]> => {
+            const { data } = await api.get('/ciders/directory');
+            return data;
+        },
+        staleTime: 1000 * 60 * 10, // Кэшируем на 10 минут
+    });
 };

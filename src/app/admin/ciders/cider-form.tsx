@@ -69,8 +69,8 @@ export function CiderForm({ initialData }: CiderFormProps) {
   });
 
   const { data: manufacturers, isLoading: isLoadingManufacturers } = useQuery<DirectoryItem[]>({
-    queryKey: ['manufacturers'],
-    queryFn: async () => (await api.get('/manufacturers')).data.data,
+    queryKey: ['manufacturers-directory'],
+    queryFn: async () => (await api.get('/manufacturers/directory')).data.data,
   });
 
   const onSubmit = (values: CiderFormValues) => {
