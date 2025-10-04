@@ -10,7 +10,7 @@ import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine, Gla
 import { Button } from '../ui/button';
 
 // --- НОВОЕ: Указываем версию админки ---
-const ADMIN_VERSION = "0.1.1";
+const ADMIN_VERSION = "0.1.2";
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   // Используем startsWith для подсветки активного раздела, кроме дашборда
