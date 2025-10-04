@@ -4,33 +4,40 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Place } from '@/types/entities'; 
-import { DataTable } from '@/components/admin/data-table';
 import { columns } from './columns';
+import { DataTable } from '@/components/admin/data-table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from '@/context/AuthContext';
+import { Place } from '@/types/entities';
 
 // Тип для параметров запроса
 type FetchPlacesParams = {
   q?: string;
   status?: string;
-  // Добавьте другие фильтры по мере необходимости
 };
+
+// --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Тип для ответа от эндпоинта /entities/owned ---
+type OwnedEntity = {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  roleInEntity: string;
+  entityType: 'PLACE' | 'MANUFACTURER';
+}
 
 // Функция для получения мест
 const fetchPlaces = async (params: FetchPlacesParams): Promise<Place[]> => {
   const { data } = await api.get('/places', { params });
-  // Предполагаем, что API возвращает { data: [...], pagination: {...} }
   return data.data;
 };
 
 // Функция для получения "своих" мест для роли business
 const fetchMyOwnedPlaces = async (): Promise<Place[]> => {
   const { data } = await api.get('/entities/owned');
-  // Фильтруем, чтобы оставить только 'PLACE'
-  return data.data.filter((entity: any) => entity.entityType === 'PLACE');
+  // --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Используем наш новый тип для 'entity' ---
+  return data.data.filter((entity: OwnedEntity) => entity.entityType === 'PLACE');
 }
 
 export default function PlacesPage() {
@@ -40,7 +47,6 @@ export default function PlacesPage() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // Определяем, какую функцию запроса использовать в зависимости от роли
   const isBusiness = user?.role === 'business';
   const queryKey = isBusiness ? ['my-places'] : ['places', debouncedSearchQuery, statusFilter];
   const queryFn = isBusiness
@@ -50,7 +56,7 @@ export default function PlacesPage() {
   const { data: places, isLoading, error } = useQuery({
     queryKey,
     queryFn,
-    enabled: !!user, // Запускаем запрос только после того, как пользователь определен
+    enabled: !!user, 
   });
 
   if (error) return <div>Ошибка при загрузке: {error.message}</div>;
@@ -59,7 +65,6 @@ export default function PlacesPage() {
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-4">Управление Местами</h1>
 
-      {/* Показываем фильтры только для админов/модераторов */}
       {!isBusiness && (
         <div className="flex items-center gap-4 mb-4">
           <Input

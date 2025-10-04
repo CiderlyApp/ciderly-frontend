@@ -1,16 +1,16 @@
 // src/app/admin/places/columns.tsx
 "use client"
 
+import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ShieldCheck, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-
-import { Place } from "@/types/entities"
+import { Place } from "@/types/entities" // Убедитесь, что вы создали этот файл и тип
 import { useModeratePlace, useArchivePlace } from "@/hooks/use-places"
+
 // Компонент для меню действий
 const ActionsCell = ({ row }: { row: { original: Place } }) => {
   const place = row.original;
@@ -54,8 +54,9 @@ const ActionsCell = ({ row }: { row: { original: Place } }) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+          {/* --- ИСПРАВЛЕНИЕ ЗДЕСЬ --- */}
           <AlertDialogDescription>
-            Это действие заархивирует место "{place.name}". Оно перестанет отображаться для пользователей.
+            {`Это действие заархивирует место "${place.name}". Оно перестанет отображаться для пользователей.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
