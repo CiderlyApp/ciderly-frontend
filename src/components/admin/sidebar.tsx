@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 // --- ИЗМЕНЕНИЕ: Заменили иконку Beer на Wine ---
-import { Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine, GlassWater } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, ShoppingBag, BarChart3, Building, LogOut, Wine, GlassWater } from 'lucide-react';
 import { Button } from '../ui/button';
 
 // --- НОВОЕ: Указываем версию админки ---
-const ADMIN_VERSION = "0.1.2";
+const ADMIN_VERSION = "0.2.0";
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   // Используем startsWith для подсветки активного раздела, кроме дашборда
@@ -51,7 +51,7 @@ export function Sidebar() {
             {/* ... (список ссылок без изменений) ... */}
             <li>
               <NavLink href="/admin">
-                <BarChart3 className="h-4 w-4" />
+                <LayoutDashboard className="h-4 w-4" />
                 Дашборд
               </NavLink>
             </li>
