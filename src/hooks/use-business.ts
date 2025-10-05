@@ -19,30 +19,24 @@ export const useCheckEmail = (email: string) => {
   });
 };
 
-// Получение списка сущностей для клейма
+// Получение списка сущностей для клейма (без изменений)
 export const useGetEntitiesDirectory = (entityType: 'MANUFACTURER' | 'PLACE') => {
     return useQuery({
         queryKey: ['entitiesDirectory', entityType],
         queryFn: async () => {
-            // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-            // Используем специальный эндпоинт для справочников, который не требует пагинации
-            const endpoint = entityType === 'MANUFACTURER' ? '/manufacturers/directory' : '/places/directory'; // Предполагаем, что для places тоже будет /directory
-            
-            // Запрос теперь не содержит limit и получает все необходимые данные
+            const endpoint = entityType === 'MANUFACTURER' ? '/manufacturers/directory' : '/places/directory';
             const { data } = await api.get(endpoint);
-            
-            // Эндпоинт /directory возвращает массив напрямую
             return data as { id: string; name: string }[];
         },
-        staleTime: 5 * 60 * 1000, // 5 минут
+        staleTime: 5 * 60 * 1000,
     });
 };
 
-
+// --- ИЗМЕНЕНИЕ: Тип для данных заявки обновлен ---
 export interface ClaimPayload {
+  email: string; // <-- Email теперь обязательное поле
   entityType: 'MANUFACTURER' | 'PLACE';
   message: string;
-  existingUserEmail?: string;
   entityId?: string;
   entityData?: {
     name?: string;

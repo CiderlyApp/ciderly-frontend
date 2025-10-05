@@ -1,14 +1,15 @@
+// src/app/business/claim-form.tsx
+
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useCheckEmail, useGetEntitiesDirectory, useCreateClaim, ClaimPayload } from '@/hooks/use-business';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,40 +17,34 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-// --- ИСПРАВЛЕНИЕ: Неиспользуемый импорт Switch удален ---
 
+// --- ИЗМЕНЕНИЕ: Схема валидации обновлена ---
 const formSchema = z.object({
-  hasAccount: z.boolean(),
-  existingUserEmail: z.string().optional(),
+  // Поле 'hasAccount' удалено
+  email: z.string().email({ message: 'Пожалуйста, введите корректный email.' }),
   claimType: z.enum(['new', 'existing']),
   entityType: z.enum(['MANUFACTURER', 'PLACE']),
   
-  // Поля для существующей сущности
   entityId: z.string().optional(),
-  
-  // Общие поля для новой сущности
   name: z.string().optional(),
   description: z.string().optional(),
   website: z.string().url().optional().or(z.literal('')),
   
-  // Поля для нового производителя
   manufacturerCity: z.string().optional(),
   manufacturerCountryId: z.string().optional(),
   manufacturerRegionId: z.string().optional(),
 
-  // Поля для нового места
   placeType: z.enum(['BAR', 'SHOP', 'RESTAURANT', 'FESTIVAL', 'OTHER']).optional(),
   placeAddress: z.string().optional(),
   placeCity: z.string().optional(),
   placeCountryId: z.string().optional(),
   placeRegionId: z.string().optional(),
 
-  // Поля для доказательства
   message: z.string().min(10, { message: 'Пожалуйста, предоставьте больше информации.' }),
 });
 
 export function ClaimBusinessForm() {
-  const [hasAccount, setHasAccount] = useState(false);
+  // --- ИЗМЕНЕНИЕ: Состояние 'hasAccount' удалено ---
   const [claimType, setClaimType] = useState<'new' | 'existing'>('new');
   const [entityType, setEntityType] = useState<'MANUFACTURER' | 'PLACE'>('MANUFACTURER');
   const [emailToValidate, setEmailToValidate] = useState('');
@@ -62,21 +57,19 @@ export function ClaimBusinessForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      hasAccount: false,
       claimType: 'new',
       entityType: 'MANUFACTURER',
+      email: '', // Добавлено дефолтное значение
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // --- ИСПРАВЛЕНИЕ: Использован `const` и строгий тип `ClaimPayload` ---
+    // --- ИЗМЕНЕНИЕ: Логика сборки payload упрощена ---
     const payload: ClaimPayload = {
+      email: values.email, // Email теперь всегда отправляется
       entityType: values.entityType,
       message: values.message,
     };
-    if (values.hasAccount) {
-      payload.existingUserEmail = values.existingUserEmail;
-    }
 
     if (values.claimType === 'existing') {
       payload.entityId = values.entityId;
@@ -105,23 +98,14 @@ export function ClaimBusinessForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Блок аккаунта */}
-        <div className="flex items-center space-x-2">
-          <Controller name="hasAccount" control={form.control} render={({ field }) => (
-              <Checkbox id="hasAccount" checked={field.value} onCheckedChange={(checked) => {
-                // --- Улучшение: Безопасная обработка `indeterminate` состояния ---
-                const isChecked = checked === true;
-                field.onChange(isChecked);
-                setHasAccount(isChecked);
-              }} />
-          )} />
-          <label htmlFor="hasAccount" className="text-sm font-medium">У меня уже есть аккаунт в Ciderly</label>
-        </div>
-
-        {hasAccount && (
-          <FormField control={form.control} name="existingUserEmail" render={({ field }) => (
+        
+        {/* --- ИЗМЕНЕНИЕ: Блок с чекбоксом заменен на поле Email с описанием --- */}
+        <FormField control={form.control} name="email" render={({ field }) => (
             <FormItem>
               <FormLabel>Email вашего аккаунта</FormLabel>
+              <FormDescription>
+                Укажите email вашего аккаунта в Ciderly. Для более быстрой проверки мы рекомендуем использовать ваш официальный корпоративный email.
+              </FormDescription>
               <FormControl>
                 <div className="relative">
                   <Input placeholder="user@example.com" {...field} onChange={(e) => {
@@ -138,16 +122,14 @@ export function ClaimBusinessForm() {
               <FormMessage />
             </FormItem>
           )} />
-        )}
         
         <Separator />
 
-        {/* Выбор типа заявки и сущности */}
+        {/* Выбор типа заявки и сущности (без изменений) */}
         <div className="grid md:grid-cols-2 gap-6">
           <FormField control={form.control} name="claimType" render={({ field }) => (
             <FormItem>
                 <FormLabel>Тип заявки</FormLabel>
-                {/* --- ИСПРАВЛЕНИЕ: Удален `as any` --- */}
                 <Select onValueChange={(value) => { field.onChange(value); setClaimType(value as 'new' | 'existing'); }} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent>
@@ -160,7 +142,6 @@ export function ClaimBusinessForm() {
           <FormField control={form.control} name="entityType" render={({ field }) => (
             <FormItem>
                 <FormLabel>Тип объекта</FormLabel>
-                 {/* --- ИСПРАВЛЕНИЕ: Удален `as any` --- */}
                 <Select onValueChange={(value) => { field.onChange(value); setEntityType(value as 'MANUFACTURER' | 'PLACE'); }} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent>
@@ -174,7 +155,7 @@ export function ClaimBusinessForm() {
         
         <Separator />
 
-        {/* Динамическая часть формы */}
+        {/* Остальная часть формы без изменений */}
         {claimType === 'existing' ? (
             <FormField control={form.control} name="entityId" render={({ field }) => (
                 <FormItem>
@@ -190,7 +171,6 @@ export function ClaimBusinessForm() {
                 </FormItem>
             )} />
         ) : (
-            // Форма для нового объекта
             <div className="space-y-6">
                 <h3 className="text-lg font-medium border-b pb-2">Информация о новом объекте</h3>
                 <FormField control={form.control} name="name" render={({ field }) => (
@@ -201,7 +181,6 @@ export function ClaimBusinessForm() {
                     <FormField control={form.control} name="manufacturerCity" render={({ field }) => (
                       <FormItem><FormLabel>Город</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
-                    {/* TODO: Заменить на Select с загрузкой стран/регионов */}
                     <FormField control={form.control} name="manufacturerCountryId" render={({ field }) => (
                       <FormItem><FormLabel>ID Страны (временно)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
@@ -239,7 +218,6 @@ export function ClaimBusinessForm() {
 
         <Separator />
         
-        {/* Поля для доказательств */}
         <div className="space-y-6">
             <h3 className="text-lg font-medium border-b pb-2">Подтверждение</h3>
             <FormField control={form.control} name="message" render={({ field }) => (
@@ -250,7 +228,6 @@ export function ClaimBusinessForm() {
                     <FormMessage />
                 </FormItem>
             )} />
-            {/* TODO: Добавить загрузчик для файлов-доказательств */}
              <div className="space-y-2">
                 <Label>Прикрепить файлы</Label>
                 <Input type="file" multiple disabled />
