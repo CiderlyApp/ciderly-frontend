@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminStats, CiderAnalyticsData, ActivityChartDataPoint } from '@/types/dashboard'; 
-import { Manufacturer, Cider } from '@/types/entities';
+import { Cider } from '@/types/entities';
 
 // Тип для ответа по сущностям, которыми владеет пользователь
 type OwnedEntity = {
