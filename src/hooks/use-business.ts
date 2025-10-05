@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '@/types/api';
 
 // Проверка email
 export const useCheckEmail = (email: string) => {
@@ -29,10 +31,32 @@ export const useGetEntitiesDirectory = (entityType: 'MANUFACTURER' | 'PLACE') =>
     });
 };
 
+// --- ИСПРАВЛЕНИЕ: Добавлен строгий тип для данных заявки ---
+export interface ClaimPayload {
+  entityType: 'MANUFACTURER' | 'PLACE';
+  message: string;
+  existingUserEmail?: string;
+  entityId?: string;
+  entityData?: {
+    name?: string;
+    description?: string;
+    website?: string;
+    // Поля производителя
+    city?: string;
+    countryId?: number;
+    regionId?: number;
+    // Поля места
+    type?: 'BAR' | 'SHOP' | 'RESTAURANT' | 'FESTIVAL' | 'OTHER';
+    address?: string;
+  };
+}
+
+
 // Мутация для создания заявки
 export const useCreateClaim = () => {
     return useMutation({
-        mutationFn: async (claimData: any) => {
+        // --- ИСПРАВЛЕНИЕ: Использован тип ClaimPayload вместо any ---
+        mutationFn: async (claimData: ClaimPayload) => {
             const { data } = await api.post('/claims/request', claimData);
             return data;
         },
@@ -41,7 +65,8 @@ export const useCreateClaim = () => {
                 description: 'Мы рассмотрим ее в ближайшее время и свяжемся с вами.',
             });
         },
-        onError: (error: any) => {
+        // --- ИСПРАВЛЕНИЕ: Добавлен тип для ошибки ---
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             toast.error('Ошибка при отправке заявки', {
                 description: error.response?.data?.message || 'Пожалуйста, попробуйте снова.',
             });

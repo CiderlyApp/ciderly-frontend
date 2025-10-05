@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useCheckEmail, useGetEntitiesDirectory, useCreateClaim } from '@/hooks/use-business';
+import { useCheckEmail, useGetEntitiesDirectory, useCreateClaim, ClaimPayload } from '@/hooks/use-business';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,11 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-// --- ИСПРАВЛЕНИЕ: Добавлен импорт FormDescription ---
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
+// --- ИСПРАВЛЕНИЕ: Неиспользуемый импорт Switch удален ---
 
 const formSchema = z.object({
   hasAccount: z.boolean(),
@@ -70,7 +69,8 @@ export function ClaimBusinessForm() {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    let payload: any = {
+    // --- ИСПРАВЛЕНИЕ: Использован `const` и строгий тип `ClaimPayload` ---
+    const payload: ClaimPayload = {
       entityType: values.entityType,
       message: values.message,
     };
@@ -88,14 +88,14 @@ export function ClaimBusinessForm() {
       };
       if (values.entityType === 'MANUFACTURER') {
         payload.entityData.city = values.manufacturerCity;
-        payload.entityData.countryId = Number(values.manufacturerCountryId);
-        payload.entityData.regionId = Number(values.manufacturerRegionId);
+        payload.entityData.countryId = values.manufacturerCountryId ? Number(values.manufacturerCountryId) : undefined;
+        payload.entityData.regionId = values.manufacturerRegionId ? Number(values.manufacturerRegionId) : undefined;
       } else {
         payload.entityData.type = values.placeType;
         payload.entityData.address = values.placeAddress;
         payload.entityData.city = values.placeCity;
-        payload.entityData.countryId = Number(values.placeCountryId);
-        payload.entityData.regionId = Number(values.placeRegionId);
+        payload.entityData.countryId = values.placeCountryId ? Number(values.placeCountryId) : undefined;
+        payload.entityData.regionId = values.placeRegionId ? Number(values.placeRegionId) : undefined;
       }
     }
     
@@ -108,10 +108,11 @@ export function ClaimBusinessForm() {
         {/* Блок аккаунта */}
         <div className="flex items-center space-x-2">
           <Controller name="hasAccount" control={form.control} render={({ field }) => (
-              // --- ИСПРАВЛЕНИЕ: Добавлен тип для 'checked' ---
-              <Checkbox id="hasAccount" checked={field.value} onCheckedChange={(checked: boolean | 'indeterminate') => {
-                field.onChange(checked);
-                setHasAccount(!!checked);
+              <Checkbox id="hasAccount" checked={field.value} onCheckedChange={(checked) => {
+                // --- Улучшение: Безопасная обработка `indeterminate` состояния ---
+                const isChecked = checked === true;
+                field.onChange(isChecked);
+                setHasAccount(isChecked);
               }} />
           )} />
           <label htmlFor="hasAccount" className="text-sm font-medium">У меня уже есть аккаунт в Ciderly</label>
@@ -146,7 +147,8 @@ export function ClaimBusinessForm() {
           <FormField control={form.control} name="claimType" render={({ field }) => (
             <FormItem>
                 <FormLabel>Тип заявки</FormLabel>
-                <Select onValueChange={(value) => { field.onChange(value); setClaimType(value as any); }} defaultValue={field.value}>
+                {/* --- ИСПРАВЛЕНИЕ: Удален `as any` --- */}
+                <Select onValueChange={(value) => { field.onChange(value); setClaimType(value as 'new' | 'existing'); }} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent>
                         <SelectItem value="new">Добавить новый объект</SelectItem>
@@ -158,7 +160,8 @@ export function ClaimBusinessForm() {
           <FormField control={form.control} name="entityType" render={({ field }) => (
             <FormItem>
                 <FormLabel>Тип объекта</FormLabel>
-                <Select onValueChange={(value) => { field.onChange(value); setEntityType(value as any); }} defaultValue={field.value}>
+                 {/* --- ИСПРАВЛЕНИЕ: Удален `as any` --- */}
+                <Select onValueChange={(value) => { field.onChange(value); setEntityType(value as 'MANUFACTURER' | 'PLACE'); }} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                     <SelectContent>
                         <SelectItem value="MANUFACTURER">Производитель / Сидрерия</SelectItem>
