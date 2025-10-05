@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { LoginForm } from '@/components/auth/login-form';
 import { LogIn } from 'lucide-react';
+import Link from 'next/link';
 
 const FINAL_READINESS = 73;
 
@@ -81,11 +82,37 @@ export default function LandingPage() {
         </div>
       </main>
 
-      {/* ---  FOOTER --- */}
-      
-      <footer className="absolute bottom-0 left-0 z-10 w-full p-6 text-center text-sm text-muted-foreground">
-        Ciderly 2025
-      </footer>
+      {/* --- FOOTER --- */}
+      <footer className="w-full border-t bg-background">
+  <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 py-12 text-sm">
+    <div className="flex flex-col gap-3">
+      <h4 className="font-semibold">Навигация</h4>
+      <Link href="/blog" className="text-muted-foreground hover:text-foreground">Блог</Link>
+      <Link href="/app" className="text-muted-foreground hover:text-foreground">Приложение</Link>
+      <Link href="/contacts" className="text-muted-foreground hover:text-foreground">Контакты</Link>
+    </div>
+
+    <div className="flex flex-col gap-3">
+      <h4 className="font-semibold">Для бизнеса</h4>
+      <Link href="/claim-business" className="text-muted-foreground hover:text-foreground">Подать заявку</Link>
+      <Link href="/feedback" className="text-muted-foreground hover:text-foreground">Обратная связь</Link>
+    </div>
+
+    <div className="flex flex-col gap-3">
+      <h4 className="font-semibold">Правовая информация</h4>
+      <Link href="/privacy" className="text-muted-foreground hover:text-foreground">Политика конфиденциальности</Link>
+      <Link href="/terms" className="text-muted-foreground hover:text-foreground">Условия использования</Link>
+    </div>
+
+    <div className="flex flex-col gap-3">
+      <h4 className="font-semibold text-lg">Ciderly</h4>
+      <p className="text-muted-foreground">
+        Ваш гид в мире сидра. Открывайте, оценивайте, делитесь.
+      </p>
+      <span className="text-muted-foreground">&copy; Ciderly {new Date().getFullYear()}</span>
+    </div>
+  </div>
+</footer>
     </div>
   );
 }
