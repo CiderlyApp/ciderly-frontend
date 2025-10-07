@@ -1,34 +1,49 @@
 // src/components/admin/dashboard/admin-dashboard.tsx
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useGetAdminStats, useGetAdminActivityChart } from '@/hooks/use-dashboard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KpiCard } from './widgets/kpi-card';
 import { ActivityChart } from './widgets/activity-chart';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function AdminDashboard() {
-  // Правильно получаем данные: stats для KPI, activityData для графика
-  const { data: stats, isLoading: isLoadingStats } = useGetAdminStats();
-  const { data: activityData, isLoading: isLoadingActivity } = useGetAdminActivityChart();
+  const queryClient = useQueryClient();
+  const { data: stats, isLoading: isLoadingStats, isFetching: isFetchingStats } = useGetAdminStats();
+  const { data: activityData, isLoading: isLoadingActivity, isFetching: isFetchingActivity } = useGetAdminActivityChart();
+
+  const isRefreshing = isFetchingStats || isFetchingActivity;
+
+  const handleRefresh = () => {
+    toast.info("Обновление данных...");
+    queryClient.invalidateQueries({ queryKey: ['admin-dashboard-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['admin-activity-chart'] });
+  };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Дашборд</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Дашборд</h1>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Обновить
+        </Button>
+      </div>
       
-      {/* 
-        Один блок isLoading для простоты.
-        Используем `stats` для KPI, как и положено.
-      */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Пользователи" value={stats?.totalUsers} isLoading={isLoadingStats} />
-        <KpiCard title="Сидры" value={stats?.totalApprovedCiders} isLoading={isLoadingStats} />
-        <KpiCard title="Места" value={stats?.totalApprovedPlaces} isLoading={isLoadingStats} />
+        {/* --- ИСПРАВЛЕНИЕ: Добавлено `?? 0` чтобы избежать "N/A" --- */}
+        <KpiCard title="Сидры" value={stats?.totalApprovedCiders ?? 0} isLoading={isLoadingStats} />
+        <KpiCard title="Места" value={stats?.totalApprovedPlaces ?? 0} isLoading={isLoadingStats} />
         <KpiCard title="Отзывы" value={stats?.totalReviews} isLoading={isLoadingStats} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1"> {/* Изменим сетку для лучшего вида */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
         <Card>
           <CardHeader>
             <CardTitle>Очередь модерации</CardTitle>
@@ -55,9 +70,6 @@ export function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-        
-        {/* Можно добавить еще виджеты сюда, если нужно */}
-        
       </div>
 
       <Card>
@@ -65,10 +77,6 @@ export function AdminDashboard() {
           <CardTitle>Активность за 30 дней</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* 
-            Передаем `activityData` в компонент графика.
-            Состояние загрузки `isLoadingActivity` тоже передаем ему.
-          */}
           <ActivityChart data={activityData} isLoading={isLoadingActivity} />
         </CardContent>
       </Card>

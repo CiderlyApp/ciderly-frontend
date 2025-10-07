@@ -1,31 +1,50 @@
 // src/components/admin/dashboard/business-dashboard.tsx
 'use client';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useGetOwnedEntities, useGetManufacturerCiders } from '@/hooks/use-dashboard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CiderAudienceAnalytics } from './widgets/cider-audience-analytics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Cider } from '@/types/entities';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function BusinessDashboard() {
+  const queryClient = useQueryClient();
   const [selectedEntityId, setSelectedEntityId] = useState<string>('');
   const [selectedCiderId, setSelectedCiderId] = useState<string>('');
 
-  const { data: ownedEntities, isLoading: isLoadingEntities } = useGetOwnedEntities();
+  const { data: ownedEntities, isLoading: isLoadingEntities, isFetching: isFetchingEntities } = useGetOwnedEntities();
   
   const selectedEntity = ownedEntities?.find(e => e.id === selectedEntityId);
   const isManufacturerSelected = selectedEntity?.entityType === 'MANUFACTURER';
 
-  const { data: ciders, isLoading: isLoadingCiders } = useGetManufacturerCiders(
+  const { data: ciders, isLoading: isLoadingCiders, isFetching: isFetchingCiders } = useGetManufacturerCiders(
     isManufacturerSelected ? selectedEntityId : null
   );
 
+  const isRefreshing = isFetchingEntities || isFetchingCiders;
+
+  const handleRefresh = () => {
+    toast.info("Обновление данных...");
+    // Инвалидируем все связанные с бизнесом запросы
+    queryClient.invalidateQueries({ queryKey: ['my-owned-entities'] });
+    queryClient.invalidateQueries({ queryKey: ['manufacturer-ciders'] });
+    queryClient.invalidateQueries({ queryKey: ['cider-analytics'] });
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Дашборд</h1>
-      
-      {/* Сводная статистика (TODO) */}
+       <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Дашборд</h1>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Обновить
+        </Button>
+      </div>
       
       <Card>
         <CardHeader>
