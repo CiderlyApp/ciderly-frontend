@@ -37,7 +37,6 @@ export function AdminDashboard() {
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Пользователи" value={stats?.totalUsers} isLoading={isLoadingStats} />
-        {/* --- ИСПРАВЛЕНИЕ: Добавлено `?? 0` чтобы избежать "N/A" --- */}
         <KpiCard title="Сидры" value={stats?.totalApprovedCiders ?? 0} isLoading={isLoadingStats} />
         <KpiCard title="Места" value={stats?.totalApprovedPlaces ?? 0} isLoading={isLoadingStats} />
         <KpiCard title="Отзывы" value={stats?.totalReviews} isLoading={isLoadingStats} />
@@ -54,17 +53,18 @@ export function AdminDashboard() {
                 <Skeleton className="h-24 w-full" />
             ) : (
                 <>
-                    <Link href="/admin/claims?status=PENDING" className="flex justify-between items-center hover:bg-muted p-2 rounded-md">
+                    {/* --- ИЗМЕНЕНИЕ: Добавлены ссылки --- */}
+                    <Link href="/admin/claims?status=PENDING" className="flex justify-between items-center hover:bg-muted p-2 rounded-md transition-colors">
                         <span>Заявки на владение</span>
-                        <span className="font-bold">{stats?.moderationQueue.claims}</span>
+                        <span className="font-bold">{stats?.moderationQueue.claims ?? 0}</span>
                     </Link>
-                    <Link href="/admin/ciders?status=pending" className="flex justify-between items-center hover:bg-muted p-2 rounded-md">
+                    <Link href="/admin/ciders?status=PENDING" className="flex justify-between items-center hover:bg-muted p-2 rounded-md transition-colors">
                         <span>Сидры на модерации</span>
-                        <span className="font-bold">{stats?.moderationQueue.ciders}</span>
+                        <span className="font-bold">{stats?.moderationQueue.ciders ?? 0}</span>
                     </Link>
-                    <Link href="/admin/places?status=PENDING" className="flex justify-between items-center hover:bg-muted p-2 rounded-md">
+                    <Link href="/admin/places?status=PENDING" className="flex justify-between items-center hover:bg-muted p-2 rounded-md transition-colors">
                         <span>Места на модерации</span>
-                        <span className="font-bold">{stats?.moderationQueue.places}</span>
+                        <span className="font-bold">{stats?.moderationQueue.places ?? 0}</span>
                     </Link>
                 </>
             )}
