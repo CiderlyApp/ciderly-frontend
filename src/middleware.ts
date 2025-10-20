@@ -13,7 +13,7 @@ function getLocale(request: NextRequest): string {
   try {
     // Используем импортированные переменные
     return match(languages, locales, defaultLocale);
-  } catch (e) {
+  } catch {
     // В случае ошибки возвращаем локаль по умолчанию
     return defaultLocale;
   }
