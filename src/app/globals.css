@@ -1,289 +1,159 @@
+/* src/app/globals.css - Tailwind v4 */
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@custom-variant dark (&:is(.dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+@theme {
+  /* --- СВЕТЛАЯ ТЕМА "СИДРОВЫЙ САД" (по умолчанию) --- */
+  --color-background: hsl(40 30% 98%);
+  --color-foreground: hsl(20 14% 4%);
+  --color-card: hsl(40 30% 100%);
+  --color-card-foreground: hsl(20 14% 4%);
+  --color-popover: hsl(40 30% 100%);
+  --color-popover-foreground: hsl(20 14% 4%);
+  --color-primary: hsl(84 70% 45%);
+  --color-primary-foreground: hsl(84 70% 95%);
+  --color-secondary: hsl(40 10% 94%);
+  --color-secondary-foreground: hsl(20 14% 15%);
+  --color-muted: hsl(40 10% 94%);
+  --color-muted-foreground: hsl(20 8% 40%);
+  --color-accent: hsl(45 90% 55%);
+  --color-accent-foreground: hsl(45 90% 5%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-border: hsl(40 10% 88%);
+  --color-input: hsl(40 10% 92%);
+  --color-ring: hsl(84 70% 55%);
+  --color-ciderly: hsl(45 90% 55%);
+
+  /* Радиусы */
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
 }
 
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
+/* Темная тема */
 @layer base {
+  .dark {
+    --color-background: hsl(80 10% 8%);
+    --color-foreground: hsl(80 10% 98%);
+    --color-card: hsl(80 8% 12%);
+    --color-card-foreground: hsl(80 10% 98%);
+    --color-popover: hsl(80 8% 10%);
+    --color-popover-foreground: hsl(80 10% 98%);
+    --color-primary: hsl(40 30% 98%);
+    --color-primary-foreground: hsl(80 10% 10%);
+    --color-secondary: hsl(80 8% 18%);
+    --color-secondary-foreground: hsl(80 10% 98%);
+    --color-muted: hsl(80 8% 18%);
+    --color-muted-foreground: hsl(80 8% 65%);
+    --color-accent: hsl(45 90% 55%);
+    --color-accent-foreground: hsl(45 90% 5%);
+    --color-destructive: hsl(0 62.8% 30.6%);
+    --color-destructive-foreground: hsl(0 0% 98%);
+    --color-border: hsl(80 8% 20%);
+    --color-input: hsl(80 8% 22%);
+    --color-ring: hsl(45 90% 60%);
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
-.ciderly-title {
-  background-image: linear-gradient(
-    45deg,
-    #84cc16, /* Лаймовый */
-    #fde047, /* Соломенный/Желтый */
-    #4ade80  /* Зеленый */
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  background-size: 200% 200%;
-  animation: gradient-animation 4s ease infinite;
-  position: relative;
-  overflow: hidden;
-  -webkit-text-stroke: 1px rgba(0,0,0,0.1);
+
+/* Анимации - явно определяем, чтобы работали везде */
+@keyframes scan-line {
+  0% { top: 0%; }
+  100% { top: 100%; }
 }
 
-@keyframes gradient-animation {
+@keyframes pulse-shadow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(84 70% 45% / 0.5); }
+  70% { box-shadow: 0 0 0 10px hsl(84 70% 45% / 0); }
+}
+
+@keyframes shimmer {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-.bubble {
-  position: absolute;
-  bottom: -20px;
-  background-color: hsl(var(--foreground) / 0.2); 
-  border-radius: 50%;
-  animation: bubble-rise 5s infinite ease-in;
-  opacity: 0;
-}
-
-@keyframes bubble-rise {
-  0% { transform: translateY(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-120px); opacity: 0; }
-}
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 0 0% 98%;
-  }
-
-  * {
-    @apply border-border;
-  }
-  
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* 1. Главный контейнер-заголовок H1. Он станет МАСКОЙ. */
-.ciderly-title-mask {
-  position: relative; /* Обязательно для позиционирования дочерних слоев */
-  
-  /* Текст нужен только для создания формы маски, поэтому делаем его прозрачным */
-  color: transparent; 
-
-  /* --- МАГИЯ МАСКИ --- */
-  /* Создаем сплошную заливку, которая будет нашей маской */
-  -webkit-mask-image: linear-gradient(black, black);
-  mask-image: linear-gradient(black, black);
-
-  /* Приказываем браузеру обрезать эту маску по форме текста */
-  -webkit-mask-clip: text;
-  mask-clip: text;
-}
-
-/* 2. Слой с градиентом. Он будет НА ДНЕ внутри маски. */
-.ciderly-gradient-layer {
-  position: absolute;
-  inset: 0; /* Растягиваем на весь родительский контейнер */
-  z-index: 1; /* Помещаем на нижний слой */
-  
-  /* Немного изменяем градиент для лучшего зацикливания */
-  background: linear-gradient(90deg, #a8e063, #56ab2f, #ef4444, #a8e063);
-  
-  /* --- НОВЫЕ СТРОКИ --- */
-  /* 1. Делаем фон в два раза шире, чтобы было куда двигаться */
-  background-size: 200% 200%;
-  
-  /* 2. Применяем нашу анимацию */
-  animation: shimmer 4s ease-in-out infinite;
-}
-
-/* 3. Контейнер для пузырьков. Он будет ПОВЕРХ градиента. */
-.ciderly-bubbles-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 2; /* Помещаем поверх градиента */
-  overflow: hidden; /* Обрезаем пузырьки, если они вылетают (не обязательно, но хорошая практика) */
-}
-
-/* 4. Стили для самих пузырьков. */
-.bubble {
-  position: absolute;
-  bottom: -20px; /* Начинаем чуть ниже */
-  border-radius: 50%;
-  
-  /* Белые, полупрозрачные пузырьки - как на картинке */
-  background-color: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Легкое свечение */
-
-  opacity: 0;
-  animation: rise-final 5s infinite ease-in;
-}
-
-/* 5. Анимация подъема пузырьков. */
 @keyframes rise-final {
   0% { transform: translateY(0); opacity: 0; }
   20% { opacity: 1; }
   90% { opacity: 1; }
   100% { transform: translateY(-140px); opacity: 0; }
 }
-@keyframes shimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+/* Утилиты для анимаций */
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+.animate-pulse-shadow {
+  animation: pulse-shadow 2.5s infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+.animate-rise-final {
+  animation: rise-final 5s infinite ease-in;
+}
+
+.animate-accordion-down {
+  animation: accordion-down 0.2s ease-out;
+}
+
+.animate-accordion-up {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* Стили CIDERLY */
+.ciderly-title-mask {
+  position: relative;
+  color: transparent;
+  -webkit-mask-image: linear-gradient(black, black);
+  mask-image: linear-gradient(black, black);
+  -webkit-mask-clip: text;
+  mask-clip: text;
+}
+
+.ciderly-gradient-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, #a8e063, #56ab2f, #ef4444, #a8e063);
+  background-size: 200% 200%;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+.ciderly-bubbles-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: rise-final 5s infinite ease-in;
 }

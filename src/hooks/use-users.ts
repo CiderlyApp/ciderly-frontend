@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { User } from '@/app/admin/users/columns';
+import { User } from '@/app/[locale]/admin/users/columns';
 import { AxiosError } from 'axios'; // <-- НОВЫЙ ИМПОРТ
 import { ApiErrorResponse } from '@/types/api';
 export const useUpdateUserBlockStatus = () => {

@@ -16,7 +16,7 @@ export type User = {
   id: string
   nickname: string
   email: string
-  role: 'user' | 'moderator' | 'business' | 'admin'
+  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger'
   isBlocked: boolean
   createdAt: string
 }
@@ -85,6 +85,7 @@ const ActionsCell = ({ row }: { row: { original: User } }) => {
               <SelectContent>
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="blogger">Blogger</SelectItem>
                 <SelectItem value="moderator">Moderator</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
@@ -113,13 +114,15 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: "Роль",
-    cell: ({ row }) => {
+cell: ({ row }) => {
         const role = row.getValue("role") as User['role'];
         const variant: "default" | "secondary" | "destructive" | "outline" = 
             role === 'admin' ? 'destructive' :
-            role === 'moderator' ? 'secondary' :
-            'default';
-        return <Badge variant={variant}>{role}</Badge>
+            role === 'moderator' || role === 'business' ? 'secondary' :
+            role === 'blogger' ? 'default' : 
+            'outline';
+        const className = role === 'blogger' ? 'bg-purple-600 text-white' : ''; 
+        return <Badge variant={variant} className={className}>{role}</Badge>
     }
   },
   {

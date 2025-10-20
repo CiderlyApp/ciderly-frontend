@@ -22,7 +22,7 @@ export const useModeratePlace = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ placeId, status, moderationComment }: { placeId: string, status: 'APPROVED' | 'REJECTED', moderationComment?: string }) => {
-      const { data } = await api.patch(`/api/places/${placeId}/moderate`, { status, moderationComment });
+      const { data } = await api.patch(`/places/${placeId}/moderate`, { status, moderationComment });
       return data;
     },
     onSuccess: (_, variables) => {
@@ -40,7 +40,7 @@ export const useArchivePlace = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (placeId: string) => {
-      return api.delete(`/api/places/${placeId}`);
+      return api.delete(`/places/${placeId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['places'] });

@@ -2,16 +2,22 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/context/AuthContext';
-import { QueryProvider } from './query-provider'; 
+import { QueryProvider } from './query-provider';
+
 
 export function Providers({ children }: { children: ReactNode }) {
-  // Здесь в будущем можно будет добавлять и другие провайдеры
   return (
-    <AuthProvider>
-      <QueryProvider> {/* <--- Оборачиваем */}
-        {children}
-      </QueryProvider>
-    </AuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <AuthProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </AuthProvider>
+      </ThemeProvider>
   );
 }

@@ -61,7 +61,16 @@ export const useCreateOrUpdateCider = () => {
     },
   });
 };
-
+export const useGetCiders = () => {
+  return useQuery<Cider[]>({
+    queryKey: ['ciders'],
+    queryFn: async () => {
+      const { data } = await api.get('/ciders');
+      // API возвращает { pagination: {...}, data: [...] }
+      return data.data; 
+    },
+  });
+};
 // Получение полного списка сидров для справочников
 export const useGetCidersDirectory = () => {
     return useQuery({

@@ -1,4 +1,4 @@
-// src/app/business/claim-form.tsx
+// src/app/components/business/claim-form.tsx
 
 'use client';
 
