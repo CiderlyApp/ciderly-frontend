@@ -35,15 +35,16 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-// ✨ ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ✨
-export default async function RootLayout({ // 1. Добавляем `async`
+export default async function RootLayout({
   children,
-  params, // 2. Принимаем `params` как единый объект
+  params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string }; // Тип остается прежним
+  // Указываем, что `params` - это промис, который разрешается в объект с `locale`
+  params: Promise<{ locale: string }>; 
 }>) {
-  const { locale } = await params; // 3. Получаем `locale` через `await`
+  // Теперь код соответствует типам: мы ожидаем промис и `await`-им его
+  const { locale } = await params;
 
   return (
     <html lang={locale} suppressHydrationWarning>
