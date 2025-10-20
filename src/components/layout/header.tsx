@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { LogIn, Wine } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/login-form";
 import { usePathname } from "next/navigation";
@@ -19,7 +19,6 @@ export function Header() {
   const navigationItems = [
     { href: "/features", label: t('nav_features') },
     { href: "/for-business", label: t('nav_for_business') },
-    // { href: "/blog", label: t('nav_blog') }, // <-- СТРОКА УДАЛЕНА
     { href: "/contacts", label: t('nav_contacts') },
   ];
 
@@ -37,7 +36,7 @@ export function Header() {
               href={item.href}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname.includes(item.href) ? "text-foreground" : "text-foreground/60"
+                pathname.startsWith(item.href) ? "text-foreground" : "text-foreground/60"
               )}
             >
               {item.label}
@@ -55,8 +54,17 @@ export function Header() {
                 {t('login')}
               </Button>
             </DialogTrigger>
-            <DialogContent className="p-0 sm:max-w-[425px] border-0 overflow-hidden">
-              <LoginForm />
+            {/* ИСПРАВЛЕНО: Добавлен DialogHeader с заголовком и описанием для доступности (accessibility). */}
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Вход в аккаунт</DialogTitle>
+                <DialogDescription>
+                  Введите ваш email и пароль для доступа к панели управления.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <LoginForm />
+              </div>
             </DialogContent>
           </Dialog>
         </div>

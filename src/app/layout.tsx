@@ -2,12 +2,16 @@
 
 import "./globals.css";
 
-// Этот layout - просто точка входа для Next.js и глобальных стилей.
-// Он не должен создавать никакой HTML-структуры.
+// Этот layout - точка входа для Next.js и глобальных стилей.
+// Он должен содержать базовую HTML-структуру.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
 }
