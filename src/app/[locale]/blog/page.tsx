@@ -3,7 +3,6 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from "next/image"; // Placeholder
 
 // Mock data for blog posts
 const mockPosts = [
