@@ -1,7 +1,8 @@
-// FILE: src/app/contacts/page.tsx
+// FILE: src/app/[locale]/contacts/page.tsx
 import { PageHeader } from "@/components/page-header";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// ИСПРАВЛЕНО: Удален неиспользуемый CardContent
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MessageSquare, Briefcase } from "lucide-react";
 
 export default function ContactsPage() {
@@ -50,7 +51,8 @@ export default function ContactsPage() {
             <AccordionItem value="item-1">
               <AccordionTrigger>Как добавить сидр, которого нет в базе?</AccordionTrigger>
               <AccordionContent>
-                Вы можете добавить новый сидр прямо в приложении. Нажмите на кнопку "+" на экране поиска и заполните форму. Ваша заявка отправится на модерацию.
+                {/* ИСПРАВЛЕНО: Использованы одинарные кавычки для обертки */}
+                Вы можете добавить новый сидр прямо в приложении. Нажмите на кнопку {'"'+'"'} на экране поиска и заполните форму. Ваша заявка отправится на модерацию.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
@@ -62,7 +64,8 @@ export default function ContactsPage() {
             <AccordionItem value="item-3">
               <AccordionTrigger>Как заявить права на страницу своего заведения?</AccordionTrigger>
               <AccordionContent>
-                Перейдите в раздел "Для бизнеса" на нашем сайте и заполните форму заявки. Мы свяжемся с вами после проверки данных для предоставления доступа.
+                {/* ИСПРАВЛЕНО: Использованы кавычки-елочки для стилистики */}
+                Перейдите в раздел «Для бизнеса» на нашем сайте и заполните форму заявки. Мы свяжемся с вами после проверки данных для предоставления доступа.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

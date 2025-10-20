@@ -15,7 +15,6 @@ export function Footer() {
         <div className="flex flex-col gap-3">
           <h4 className="font-semibold">{t('footer_nav')}</h4>
           <Link href="/features" className="text-muted-foreground hover:text-foreground">{t('nav_features')}</Link>
-          <Link href="/blog" className="text-muted-foreground hover:text-foreground">{t('nav_blog')}</Link>
           <Link href="/contacts" className="text-muted-foreground hover:text-foreground">{t('nav_contacts')}</Link>
         </div>
 

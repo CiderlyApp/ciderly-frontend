@@ -1,4 +1,4 @@
-// src/app/layout.tsx (Финальная, правильная версия)
+// FILE: src/app/[locale]/layout.tsx (Финальная, правильная версия)
 
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono as RobotoMono } from "next/font/google";
@@ -35,13 +35,16 @@ export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export default function RootLayout({
+// ✨ ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ✨
+export default async function RootLayout({ // 1. Добавляем `async`
   children,
-  params: { locale },
+  params, // 2. Принимаем `params` как единый объект
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  params: { locale: string }; // Тип остается прежним
 }>) {
+  const { locale } = await params; // 3. Получаем `locale` через `await`
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
@@ -49,7 +52,6 @@ export default function RootLayout({
       >
         <I18nProviderClient locale={locale}>
           <Providers>
-            {/* ✨ Вся структура страницы теперь здесь, в едином layout'е ✨ */}
             <div className="relative flex min-h-screen flex-col">
               <Header />
               <main className="flex-grow">{children}</main>

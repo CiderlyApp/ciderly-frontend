@@ -1,5 +1,4 @@
 // FILE: src/components/layout/header.tsx
-
 'use client';
 
 import Link from "next/link";
@@ -12,22 +11,15 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { useTranslation } from "@/app/i18n/client"; 
 import { LanguageSwitcher } from "../language-switcher";
-const navigationItems = [
-  { href: "/features", label: "Возможности" },
-  { href: "/for-business", label: "Для бизнеса" },
-  { href: "/blog", label: "Блог" },
-  { href: "/contacts", label: "Контакты" },
-];
 
 export function Header() {
   const pathname = usePathname();
-  //  Получаем функцию `t` из хука `useTranslation`
-  const { t } = useTranslation('common'); // 'common' - это имя нашего файла common.json
+  const { t } = useTranslation('common');
 
   const navigationItems = [
     { href: "/features", label: t('nav_features') },
     { href: "/for-business", label: t('nav_for_business') },
-    { href: "/blog", label: t('nav_blog') },
+    // { href: "/blog", label: t('nav_blog') }, // <-- СТРОКА УДАЛЕНА
     { href: "/contacts", label: t('nav_contacts') },
   ];
 
@@ -54,7 +46,6 @@ export function Header() {
         </nav>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-          {/* ✨ Добавляем переключатель языка ✨ */}
           <LanguageSwitcher />
           <ThemeToggle />
           <Dialog>

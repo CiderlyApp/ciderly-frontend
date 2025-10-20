@@ -1,6 +1,5 @@
 // FILE: src/app/blog/[slug]/page.tsx
 // This is a placeholder for a dynamic blog post page
-import { PageHeader } from "@/components/page-header";
 
 // In a real app, you would fetch post data based on the slug
 export default function BlogPostPage({ params }: { params: { slug: string } }) {

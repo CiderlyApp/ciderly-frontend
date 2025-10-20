@@ -1,7 +1,8 @@
-// FILE: src/app/features/page.tsx
+// FILE: src/app/[locale]/features/page.tsx
 import { PageHeader } from "@/components/page-header";
 import { CheckCircle } from "lucide-react";
-import Image from "next/image"; // Placeholder for future images
+// ИСПРАВЛЕНО: Удален неиспользуемый импорт Image
+// import Image from "next/image"; 
 
 const FeatureDetail = ({ title, children, imageUrl, reverse = false }: { title: string, children: React.ReactNode, imageUrl: string, reverse?: boolean }) => (
   <div className={`grid items-center gap-12 md:grid-cols-2 ${reverse ? "md:grid-flow-row-dense" : ""}`}>
@@ -10,7 +11,6 @@ const FeatureDetail = ({ title, children, imageUrl, reverse = false }: { title: 
       <div className="text-muted-foreground">{children}</div>
     </div>
     <div className="flex items-center justify-center">
-      {/* Placeholder for image */}
       <div className="w-full h-80 rounded-lg bg-muted flex items-center justify-center">
         <p className="text-muted-foreground/50">{imageUrl}</p>
       </div>
@@ -58,7 +58,8 @@ export default function FeaturesPage() {
            <ul className="mt-4 space-y-2">
             <li className="flex items-start"><CheckCircle className="mr-2 mt-1 h-4 w-4 text-primary" />Лента активности с отзывами ваших друзей.</li>
             <li className="flex items-start"><CheckCircle className="mr-2 mt-1 h-4 w-4 text-primary" />Профиль с вашей статистикой и достижениями.</li>
-            <li className="flex items-start"><CheckCircle className="mr-2 mt-1 h-4 w-4 text-primary" />Списки избранного: "Хочу попробовать", "В холодильнике", "Любимое".</li>
+             {/* ИСПРАВЛЕНО: Использованы кавычки-елочки */}
+            <li className="flex items-start"><CheckCircle className="mr-2 mt-1 h-4 w-4 text-primary" />Списки избранного: «Хочу попробовать», «В холодильнике», «Любимое».</li>
           </ul>
         </FeatureDetail>
       </div>

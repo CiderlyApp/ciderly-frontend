@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { Wine, MapPin, Calendar, ScanLine } from 'lucide-react';
 import { PhoneMockup } from '@/components/visuals/phone-mockup';
 import { Bubbles } from '@/components/bubbles';
@@ -36,8 +36,7 @@ const features = [
 ];
 
 // Компонент для одной карточки
-const AnimatedFeatureCard = ({ feature, scrollYProgress }: { feature: typeof features[0], scrollYProgress: any }) => {
-  // Трансформируем значение скролла (от 0 до 1) в анимацию
+const AnimatedFeatureCard = ({ feature, scrollYProgress }: { feature: typeof features[0], scrollYProgress: MotionValue<number> }) => {
   const x = useTransform(scrollYProgress, [0.1, 0.8], [0, feature.endPosition[0]]);
   const y = useTransform(scrollYProgress, [0.1, 0.8], [0, feature.endPosition[1]]);
   const opacity = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
@@ -60,23 +59,17 @@ const AnimatedFeatureCard = ({ feature, scrollYProgress }: { feature: typeof fea
 export const InteractiveHero = () => {
   const targetRef = useRef<HTMLDivElement | null>(null);
   
-  // Отслеживаем прогресс скролла внутри контейнера targetRef
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ['start start', 'end end'],
   });
 
-  // Анимация для телефона: немного уменьшается при скролле
   const phoneScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
   const phoneOpacity = useTransform(scrollYProgress, [0.8, 1], [1, 0]);
 
   return (
-    // Контейнер, который определяет "длительность" скролла для анимации
     <section ref={targetRef} className="relative h-[300vh] py-20">
-      {/* Этот контейнер "прилипает" к верху экрана на время прокрутки */}
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden">
-        
-        {/* Заголовок (остается статичным) */}
         <div className="relative z-20 mb-8 text-center">
           <h1 className="ciderly-title-mask text-7xl font-extrabold tracking-tighter sm:text-8xl md:text-9xl">
             CIDERLY
@@ -89,20 +82,14 @@ export const InteractiveHero = () => {
             Вся сидровая культура в вашем кармане. Открывайте, оценивайте и делитесь лучшими сидрами, местами и событиями.
           </p>
         </div>
-
-        {/* Сцена с анимацией */}
         <div className="relative flex h-[500px] w-full items-center justify-center">
-            {/* Карточки */}
             {features.map((feature, index) => (
                 <AnimatedFeatureCard key={index} feature={feature} scrollYProgress={scrollYProgress} />
             ))}
-
-            {/* Телефон */}
             <motion.div style={{ scale: phoneScale, opacity: phoneOpacity }} className="relative z-10">
                 <PhoneMockup />
             </motion.div>
         </div>
-
       </div>
     </section>
   );
