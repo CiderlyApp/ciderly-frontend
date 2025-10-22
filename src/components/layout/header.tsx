@@ -25,10 +25,15 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Wine className="h-6 w-6 text-primary" />
-          <span className="font-bold">{t('ciderly')}</span>
-        </Link>
+        {/* ИСПРАВЛЕНО: Логотип обернут в div с flex-1 для создания левой колонки, которая будет занимать равное с правой колонкой пространство. */}
+        <div className="flex flex-1 items-center justify-start">
+          <Link href="/" className="flex items-center space-x-2">
+            <Wine className="h-6 w-6 text-primary" />
+            <span className="font-bold">{t('ciderly')}</span>
+          </Link>
+        </div>
+
+        {/* ИСПРАВЛЕНО: Навигация теперь является центральным элементом между двумя "распорками" (flex-1). */}
         <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
           {navigationItems.map((item) => (
             <Link
@@ -54,7 +59,6 @@ export function Header() {
                 {t('login')}
               </Button>
             </DialogTrigger>
-            {/* ИСПРАВЛЕНО: Добавлен DialogHeader с заголовком и описанием для доступности (accessibility). */}
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Вход в аккаунт</DialogTitle>

@@ -9,9 +9,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html>
-      <body>{children}</body>
-    </html>
-  );
+  // ИСПРАВЛЕНО: Убираем теги <html> и <body> отсюда.
+  // Они определяются в [locale]/layout.tsx, чтобы избежать вложенности
+  // и ошибки гидратации. Этот компонент теперь просто "пропускает"
+  // дочерние элементы дальше по дереву.
+  return <>{children}</>;
 }

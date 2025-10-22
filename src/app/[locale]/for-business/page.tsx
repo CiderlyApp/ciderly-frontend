@@ -1,4 +1,3 @@
-// FILE: src/app/for-business/page.tsx
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +5,11 @@ import { BarChart, Edit, Megaphone, Users } from "lucide-react";
 import Link from "next/link";
 
 const FeatureCard = ({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => (
-  // ИЗМЕНЕНИЕ: Убран класс text-left, чтобы карточка наследовала центрирование
+  // ИСПРАВЛЕНО: Убран класс text-left, чтобы карточка наследовала центрирование от родителя.
   <Card> 
     <CardHeader>
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+      {/* ИСПРАВЛЕНО: Обертка для иконки, чтобы она тоже была по центру в своей ячейке. */}
+      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
         <Icon className="h-6 w-6" />
       </div>
       <CardTitle>{title}</CardTitle>
@@ -19,22 +19,23 @@ const FeatureCard = ({ icon: Icon, title, children }: { icon: React.ElementType,
 );
 
 const Step = ({ number, title, children }: { number: string, title: string, children: React.ReactNode }) => (
-  // ИЗМЕНЕНИЕ: Убран класс text-left
-  <div className="flex"> 
-    <div className="flex-shrink-0 mr-4 h-10 w-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-lg">
+  // ИСПРАВЛЕНО: Убран text-left, чтобы текст шага также был выровнен по центру.
+  <div className="flex flex-col items-center gap-4"> 
+    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary font-bold text-lg text-primary-foreground">
       {number}
     </div>
-    <div>
+    <div className="text-center">
       <h4 className="font-semibold">{title}</h4>
-      <p className="text-muted-foreground text-sm">{children}</p>
+      <p className="text-sm text-muted-foreground">{children}</p>
     </div>
   </div>
 );
 
 export default function ForBusinessPage() {
   return (
+    // Этот контейнер уже правильно центрирует всю страницу.
     <div className="container py-12 md:py-20">
-      {/* ✨ ГЛАВНОЕ ИЗМЕНЕНИЕ: Общий контейнер для центрирования всего контента ✨ */}
+      {/* Этот вложенный блок обеспечивает максимальную ширину и центрирование всего содержимого. */}
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-y-24 text-center">
         
         <PageHeader
@@ -62,7 +63,7 @@ export default function ForBusinessPage() {
 
         <section className="w-full">
           <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Как это работает?</h2>
-          <div className="mt-12 mx-auto max-w-4xl grid grid-cols-1 gap-10 md:grid-cols-3">
+          <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-10 md:grid-cols-3">
             <Step number="1" title="Найдите или добавьте свой бренд">
               Проверьте, есть ли ваша компания в нашей базе, или подайте заявку на создание новой страницы.
             </Step>
@@ -77,7 +78,7 @@ export default function ForBusinessPage() {
         
         <section>
           <h3 className="text-xl font-semibold">Готовы начать?</h3>
-          <p className="text-muted-foreground mt-2">Присоединяйтесь к платформе Ciderly уже сегодня.</p>
+          <p className="mt-2 text-muted-foreground">Присоединяйтесь к платформе Ciderly уже сегодня.</p>
           <div className="mt-6">
             <Button asChild size="lg">
               <Link href="/claim-business">Подать заявку</Link>
