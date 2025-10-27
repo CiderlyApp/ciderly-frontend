@@ -9,20 +9,18 @@ export type Place = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   averageRating: number | null;
   createdAt: string;
-  // Добавьте сюда другие поля, если они понадобятся, например, для формы редактирования
   description?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
-  // ... и так далее
 };
 
-// Перенесем сюда и другие типы для чистоты
+// ИСПРАВЛЕНО: Тип User теперь является единственным источником правды.
 export type User = {
   id: string
   nickname: string
   email: string
-  role: 'user' | 'moderator' | 'business' | 'admin'
+  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger' // Добавлена роль blogger
   isBlocked: boolean
   createdAt: string
 };
@@ -38,7 +36,6 @@ export type Claim = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   adminComment: string | null;
   createdAt: string;
-  
 };
 
 export type Manufacturer = {
@@ -46,14 +43,14 @@ export type Manufacturer = {
   name: string;
   city: string | null;
   countryName: string | null;
-  regionName?: string | null; // Добавим на всякий случай
+  regionName?: string | null;
   subscribersCount?: number;
   createdAt?: string;
   description?: string | null;
   website?: string | null;
   logoUrl?: string | null;
-  regionId?: number; // Для форм
-  countryId?: number; // Для форм
+  regionId?: number;
+  countryId?: number;
 };
 
 export type Cider = {
@@ -62,7 +59,6 @@ export type Cider = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   type: string;
   manufacturerName: string;
-  // Поля для формы
   manufacturerId?: string;
   countryId?: number;
   regionId?: number;

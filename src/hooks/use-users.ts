@@ -2,8 +2,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { User } from '@/app/[locale]/admin/users/columns';
-import { AxiosError } from 'axios'; // <-- НОВЫЙ ИМПОРТ
+import { User } from '@/types/entities'; 
+import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '@/types/api';
 export const useUpdateUserBlockStatus = () => {
   const queryClient = useQueryClient();
@@ -19,7 +19,6 @@ export const useUpdateUserBlockStatus = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(variables.isBlocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован');
     },
-    // --- ИСПРАВЛЕНИЕ ---
     onError: (error: AxiosError<ApiErrorResponse>) => {
       toast.error(`Ошибка: ${error.response?.data?.message || error.message}`);
     }
@@ -38,7 +37,6 @@ export const useUpdateUserRole = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(`Роль пользователя успешно изменена на "${variables.newRole}"`);
     },
-    // --- ИСПРАВЛЕНИЕ ---
     onError: (error: AxiosError<ApiErrorResponse>) => {
       const errorMessage = error.response?.data?.message || 'Не удалось изменить роль.';
       toast.error(`Ошибка: ${errorMessage}`);

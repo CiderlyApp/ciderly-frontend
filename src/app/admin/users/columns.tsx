@@ -10,17 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { useUpdateUserBlockStatus, useUpdateUserRole } from "@/hooks/use-users" // <-- Добавили useUpdateUserRole
+import { useUpdateUserBlockStatus, useUpdateUserRole } from "@/hooks/use-users"
+import { User } from "@/types/entities"; // <-- ИСПРАВЛЕНО: Импортируем централизованный тип
 
-export type User = {
-  id: string
-  nickname: string
-  email: string
-  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger'
-  isBlocked: boolean
-  createdAt: string
-}
+// Тип User был удален отсюда
 
+// ... остальной код компонента ActionsCell и columns остается без изменений ...
+// (здесь ваш код для ActionsCell и columns)
 const ActionsCell = ({ row }: { row: { original: User } }) => {
   const user = row.original;
   const { mutate: updateBlockStatus, isPending: isBlockPending } = useUpdateUserBlockStatus();

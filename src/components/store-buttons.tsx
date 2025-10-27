@@ -9,8 +9,9 @@ export const AppStoreButton = () => (
       alt="Download on the App Store"
       width={120}
       height={40}
-      className="h-80 w-auto" // Высота 48px, ширина подстроится
-      priority // Загружать эту картинку в первую очередь
+      // ИСПРАВЛЕНО: h-80 (320px) заменено на h-12 (48px)
+      className="h-12 w-auto" 
+      priority
     />
   </Link>
 );
@@ -22,8 +23,9 @@ export const GooglePlayButton = () => (
       alt="Get it on Google Play"
       width={135} 
       height={40}
-      className="h-80 w-auto" // Высота 48px, ширина подстроится
-      priority // Загружать эту картинку в первую очередь
+      // ИСПРАВЛЕНО: h-80 (320px) заменено на h-12 (48px)
+      className="h-12 w-auto"
+      priority
     />
   </Link>
 );
