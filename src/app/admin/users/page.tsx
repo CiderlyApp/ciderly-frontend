@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { columns, User } from './columns';
+import { columns } from './columns';
+import { User } from '@/types/entities'; 
 import { DataTable } from '@/components/admin/data-table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
