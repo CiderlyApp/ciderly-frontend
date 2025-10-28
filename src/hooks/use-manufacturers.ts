@@ -46,4 +46,21 @@ export const useCreateOrUpdateManufacturer = () => {
   });
 };
 
-// TODO: Добавить хук для удаления/архивации, если понадобится
+// --- ХУК для смены статуса ---
+export const useUpdateManufacturerStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ manufacturerId, isClosed }: { manufacturerId: string, isClosed: boolean }) => {
+      const { data } = await api.patch(`/admin/manufacturers/${manufacturerId}/status`, { isClosed });
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturers'] });
+      queryClient.invalidateQueries({ queryKey: ['my-manufacturers'] });
+      toast.success(variables.isClosed ? 'Производитель отмечен как закрытый' : 'Производитель снова открыт');
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      toast.error(`Ошибка: ${error.response?.data?.message || 'Не удалось обновить статус.'}`);
+    },
+  });
+};

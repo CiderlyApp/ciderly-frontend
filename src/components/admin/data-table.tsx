@@ -1,11 +1,14 @@
 // src/components/admin/data-table.tsx
 "use client"
 
+import { useState } from "react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel, // <-- Импорт для пагинации
+  getPaginationRowModel,
+  SortingState, // <-- Импорт для сортировки
+  getSortedRowModel, // <-- Импорт для сортировки
   useReactTable,
 } from "@tanstack/react-table"
 
@@ -17,7 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
+
+// --- НОВЫЙ КОМПОНЕНТ ---
+import { DataTablePagination } from "./data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -28,11 +33,18 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([])
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // <-- Включаем пагинацию
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting, // <-- Добавляем обработчик сортировки
+    getSortedRowModel: getSortedRowModel(), // <-- Включаем сортировку
+    state: {
+      sorting,
+    },
   })
 
   return (
@@ -45,12 +57,7 @@ export function DataTable<TData, TValue>({
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )
                 })}
@@ -60,10 +67,7 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -81,25 +85,9 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-       {/* Панель пагинации */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Назад
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Вперед
-        </Button>
-      </div>
+       
+      {/* --- ИСПОЛЬЗУЕМ НОВЫЙ КОМПОНЕНТ --- */}
+      <DataTablePagination table={table} />
     </div>
   )
 }

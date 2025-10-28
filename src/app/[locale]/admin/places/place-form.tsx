@@ -1,4 +1,4 @@
-// src/app/admin/places/place-form.tsx
+// src/app/[locale]/admin/places/place-form.tsx
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -8,42 +8,47 @@ import { Place } from '@/types/entities';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateOrUpdatePlace } from '@/hooks/use-places';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { WorkingHoursInput } from '@/components/admin/working-hours-input';
+import { ImageUploader } from '@/components/admin/image-uploader';
 
-// Схема валидации
+type DirectoryItem = { id: number | string; name: string };
+
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Название должно быть не менее 2 символов." }),
+  name: z.string().min(2, "Название обязательно."),
   type: z.enum(['BAR', 'SHOP', 'RESTAURANT', 'FESTIVAL', 'OTHER']),
   address: z.string().optional(),
   city: z.string().optional(),
   description: z.string().optional(),
-  latitude: z.union([z.string(), z.number()]).refine(val => val === '' || !isNaN(Number(val)), {
-    message: "Должно быть числом",
-  }).refine(val => val === '' || (Number(val) >= -90 && Number(val) <= 90), {
-    message: "Широта должна быть от -90 до 90",
-  }),
-  longitude: z.union([z.string(), z.number()]).refine(val => val === '' || !isNaN(Number(val)), {
-    message: "Должно быть числом",
-  }).refine(val => val === '' || (Number(val) >= -180 && Number(val) <= 180), {
-    message: "Долгота должна быть от -180 до 180",
-  }),
+  latitude: z.union([z.string(), z.number()]).optional(),
+  longitude: z.union([z.string(), z.number()]).optional(),
+  phone: z.string().optional(),
+  website: z.string().url({ message: "Некорректный URL" }).optional().or(z.literal('')),
+  email: z.string().email({ message: "Некорректный email" }).optional().or(z.literal('')),
+  countryId: z.string().optional(),
+  regionId: z.string().optional(),
+  serves_food: z.boolean().default(false),
+  serves_by_glass: z.boolean().default(false),
+  offers_tastings: z.boolean().default(false),
+  outdoor_seating: z.boolean().default(false),
+  imageUrl: z.string().optional(),
+  workingHours: z.any().optional(),
 });
 
 type PlaceFormValues = z.infer<typeof formSchema>;
 
-interface PlaceFormProps {
-  initialData?: Place | null;
-}
-
-export function PlaceForm({ initialData }: PlaceFormProps) {
+export function PlaceForm({ initialData }: { initialData?: Place | null }) {
   const router = useRouter();
   const { mutate: savePlace, isPending } = useCreateOrUpdatePlace();
-
   const isEditMode = !!initialData;
-  
+
   const form = useForm<PlaceFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,116 +59,107 @@ export function PlaceForm({ initialData }: PlaceFormProps) {
       description: initialData?.description || '',
       latitude: initialData?.latitude?.toString() ?? '',
       longitude: initialData?.longitude?.toString() ?? '',
+      phone: initialData?.phone || '',
+      website: initialData?.website || '',
+      email: initialData?.email || '',
+      countryId: initialData?.countryId?.toString() || undefined,
+      regionId: initialData?.regionId?.toString() || undefined,
+      serves_food: initialData?.serves_food || false,
+      serves_by_glass: initialData?.serves_by_glass || false,
+      offers_tastings: initialData?.offers_tastings || false,
+      outdoor_seating: initialData?.outdoor_seating || false,
+      imageUrl: initialData?.imageUrl || '', 
+      workingHours: initialData?.workingHours || {},
     },
   });
+
+  const selectedCountryId = form.watch('countryId');
+  const { data: countries, isLoading: isLoadingCountries } = useQuery<DirectoryItem[]>({ queryKey: ['countries'], queryFn: async () => (await api.get('/countries')).data.data });
+  const { data: regions, isLoading: isLoadingRegions } = useQuery<DirectoryItem[]>({ queryKey: ['regions', selectedCountryId], queryFn: async () => (await api.get(`/regions?countryId=${selectedCountryId}`)).data.data, enabled: !!selectedCountryId });
 
   const onSubmit = (values: PlaceFormValues) => {
     const payload = {
       id: initialData?.id,
       ...values,
+      countryId: values.countryId ? Number(values.countryId) : null,
+      regionId: values.regionId ? Number(values.regionId) : null,
+      latitude: values.latitude != null && values.latitude !== '' ? parseFloat(String(values.latitude)) : null,
+      longitude: values.longitude != null && values.longitude !== '' ? parseFloat(String(values.longitude)) : null,
+      
       address: values.address || null,
       city: values.city || null,
       description: values.description || null,
-      latitude: values.latitude === '' ? null : Number(values.latitude),
-      longitude: values.longitude === '' ? null : Number(values.longitude),
+      phone: values.phone || null,
+      website: values.website || null,
+      email: values.email || null,
+      imageUrl: values.imageUrl || null,
     };
-    
-    savePlace(payload, {
-      onSuccess: () => {
-        router.push('/admin/places');
-      }
-    });
+    savePlace(payload, { onSuccess: () => router.push('/admin/places') });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Название</FormLabel>
-              <FormControl>
-                <Input placeholder="Название места" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <FormField control={form.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Название</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+            <FormField control={form.control} name="type" render={({ field }) => ( <FormItem><FormLabel>Тип</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="BAR">Бар</SelectItem><SelectItem value="SHOP">Магазин</SelectItem><SelectItem value="RESTAURANT">Ресторан</SelectItem><SelectItem value="FESTIVAL">Фестиваль</SelectItem><SelectItem value="OTHER">Другое</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="city" render={({ field }) => ( <FormItem><FormLabel>Город</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField control={form.control} name="address" render={({ field }) => ( <FormItem><FormLabel>Адрес</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+            </div>
+            <FormField control={form.control} name="description" render={({ field }) => ( <FormItem><FormLabel>Описание</FormLabel><FormControl><Textarea {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="latitude" render={({ field }) => ( <FormItem><FormLabel>Широта</FormLabel><FormControl><Input type="number" step="any" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField control={form.control} name="longitude" render={({ field }) => ( <FormItem><FormLabel>Долгота</FormLabel><FormControl><Input type="number" step="any" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="website" render={({ field }) => ( <FormItem><FormLabel>Веб-сайт</FormLabel><FormControl><Input placeholder="https://example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField control={form.control} name="phone" render={({ field }) => ( <FormItem><FormLabel>Телефон</FormLabel><FormControl><Input placeholder="+7..." {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+            </div>
+            <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="contact@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {isLoadingCountries ? <Skeleton className="h-10 w-full" /> : ( <FormField control={form.control} name="countryId" render={({ field }) => ( <FormItem><FormLabel>Страна</FormLabel><Select onValueChange={(value) => { field.onChange(value); form.resetField('regionId'); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Выберите страну" /></SelectTrigger></FormControl><SelectContent>{countries?.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem> )} /> )}
+              {isLoadingRegions ? <Skeleton className="h-10 w-full" /> : ( <FormField control={form.control} name="regionId" render={({ field }) => ( <FormItem><FormLabel>Регион</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCountryId}><FormControl><SelectTrigger><SelectValue placeholder="Сначала выберите страну" /></SelectTrigger></FormControl><SelectContent>{regions?.map(r => <SelectItem key={r.id} value={r.id.toString()}>{r.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem> )} /> )}
+            </div>
+            <div className="space-y-4 rounded-md border p-4">
+                <h3 className="text-md font-medium">Опции</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="serves_food" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel>Есть еда</FormLabel></FormItem> )} />
+                    <FormField control={form.control} name="serves_by_glass" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel>Наливают по бокалам</FormLabel></FormItem> )} />
+                    <FormField control={form.control} name="offers_tastings" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel>Есть дегустации</FormLabel></FormItem> )} />
+                    <FormField control={form.control} name="outdoor_seating" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel>Есть веранда</FormLabel></FormItem> )} />
+                </div>
+            </div>
+          </div>
 
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Тип</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите тип места" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="BAR">Бар</SelectItem>
-                  <SelectItem value="SHOP">Магазин</SelectItem>
-                  <SelectItem value="RESTAURANT">Ресторан</SelectItem>
-                  <SelectItem value="FESTIVAL">Фестиваль</SelectItem>
-                  <SelectItem value="OTHER">Другое</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="city" render={({ field }) => (
+          <div className="md:col-span-1 space-y-6">
+             <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
                 <FormItem>
-                <FormLabel>Город</FormLabel>
-                <FormControl><Input placeholder="Москва" {...field} /></FormControl>
-                <FormMessage />
+                  <FormControl>
+                    <ImageUploader
+                      currentImageUrl={field.value}
+                      // --- ВАЖНОЕ ИЗМЕНЕНИЕ: Теперь мы просто сохраняем ключ, а не URL ---
+                      onUploadComplete={(fileKey) => field.onChange(fileKey)}
+                      uploadType="placeImage"
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )} />
-            <FormField control={form.control} name="address" render={({ field }) => (
-                <FormItem>
-                <FormLabel>Адрес</FormLabel>
-                <FormControl><Input placeholder="ул. Пушкина, д. Колотушкина" {...field} /></FormControl>
-                <FormMessage />
-                </FormItem>
-            )} />
+              )}
+            />
+          </div>
         </div>
-        
-        <FormField control={form.control} name="description" render={({ field }) => (
-            <FormItem>
-            <FormLabel>Описание</FormLabel>
-            <FormControl><Textarea placeholder="Краткое описание места..." {...field} /></FormControl>
-            <FormMessage />
-            </FormItem>
-        )} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="latitude" render={({ field }) => (
-                <FormItem>
-                <FormLabel>Широта</FormLabel>
-                <FormControl><Input type="number" step="any" placeholder="55.7558" {...field} /></FormControl>
-                <FormMessage />
-                </FormItem>
-            )} />
-            <FormField control={form.control} name="longitude" render={({ field }) => (
-                <FormItem>
-                <FormLabel>Долгота</FormLabel>
-                {/* --- ИСПРАВЛЕНИЕ: Убраны лишние скобки и опечатки --- */}
-                <FormControl><Input type="number" step="any" placeholder="37.6173" {...field} /></FormControl>
-                <FormMessage />
-                </FormItem>
-            )} />
-        </div>
+        <FormField control={form.control} name="workingHours" render={({ field }) => ( <FormItem><FormLabel>Часы работы</FormLabel><FormControl><WorkingHoursInput {...field} /></FormControl><FormMessage /></FormItem> )} />
 
         <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => router.back()}>Отмена</Button>
             <Button type="submit" disabled={isPending}>
-                {isPending ? 'Сохранение...' : (isEditMode ? 'Сохранить изменения' : 'Создать место')}
+                {isPending ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать')}
             </Button>
         </div>
       </form>

@@ -43,3 +43,39 @@ export const useUpdateUserRole = () => {
     }
   });
 };
+
+// --- ХУК для получения одного пользователя ---
+export const useGetUser = (userId: string | null) => {
+  return useQuery({
+    queryKey: ['user', userId],
+    queryFn: async (): Promise<User> => {
+      if (!userId) throw new Error("ID пользователя не предоставлен");
+      // Используем админский эндпоинт для получения данных
+      const { data } = await api.get(`/admin/users/${userId}`); 
+      return data.data;
+    },
+    enabled: !!userId,
+  });
+};
+
+// --- ХУК для обновления профиля админом ---
+export const useUpdateUserProfileByAdmin = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userData: Partial<User> & { id: string }) => {
+      const { id, ...payload } = userData;
+      // Используем новый админский эндпоинт
+      const { data } = await api.patch(`/admin/users/${id}`, payload);
+      return data;
+    },
+    onSuccess: (data, variables) => {
+      // Инвалидируем и список, и конкретного пользователя
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user', variables.id] });
+      toast.success('Профиль пользователя успешно обновлен');
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      toast.error(`Ошибка обновления: ${error.response?.data?.message || 'Произошла ошибка.'}`);
+    },
+  });
+};

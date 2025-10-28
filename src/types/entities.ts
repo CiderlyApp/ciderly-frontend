@@ -9,18 +9,27 @@ export type Place = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   averageRating: number | null;
   createdAt: string;
-  description?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
+  description?: string | null; 
+  address?: string | null;    
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string | null;
+  website?: string | null;
+  email?: string | null;
+  countryId?: number | null;
+  regionId?: number | null;
+  serves_food?: boolean;
+  serves_by_glass?: boolean;
+  offers_tastings?: boolean;
+  outdoor_seating?: boolean;
+  workingHours?: any; // Оставляем any для сложного объекта
 };
 
-// ИСПРАВЛЕНО: Тип User теперь является единственным источником правды.
 export type User = {
   id: string
   nickname: string
   email: string
-  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger' // Добавлена роль blogger
+  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger' 
   isBlocked: boolean
   createdAt: string
 };
@@ -51,6 +60,19 @@ export type Manufacturer = {
   logoUrl?: string | null;
   regionId?: number;
   countryId?: number;
+  isClosed?: boolean;
+  address?: string | null;
+  street?: string | null;
+  postalCode?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string | null;
+  email?: string | null;
+  servesFood?: boolean;
+  servesByGlass?: boolean;
+  offersTastings?: boolean;
+  outdoorSeating?: boolean;
+  workingHours?: any | null; 
 };
 
 export type Cider = {
@@ -64,4 +86,26 @@ export type Cider = {
   regionId?: number;
   abv?: number | null;
   description?: string | null;
+  style?: string | null;
+  imageUrl?: string | null;
+  tags?: string[] | null;
+  tasteProfile?: {
+    sugar: number;
+    acidity: number;
+    tannin: number;
+    carbonation: number;
+    body: number;
+  } | null;
+};
+
+export type BusinessReview = {
+  id: string;
+  userId: string;
+  userNickname: string;
+  userAvatarUrl: string | null;
+  ratingValue: number;
+  commentText: string | null;
+  createdAt: string;
+  reviewType: 'CIDER' | 'PLACE' | 'MANUFACTURER';
+  subjectName: string; // Название сидра или места/производителя
 };

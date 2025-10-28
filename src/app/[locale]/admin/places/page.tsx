@@ -11,14 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from '@/context/AuthContext';
 import { Place } from '@/types/entities';
+import { Button } from '@/components/ui/button'; // <-- НОВЫЙ ИМПОРТ
+import Link from 'next/link'; // <-- НОВЫЙ ИМПОРТ
+import { PlusCircle } from 'lucide-react'; // <-- НОВЫЙ ИМПОРТ
 
-// Тип для параметров запроса
-type FetchPlacesParams = {
-  q?: string;
-  status?: string;
-};
 
-// --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Тип для ответа от эндпоинта /entities/owned ---
 type OwnedEntity = {
   id: string;
   name: string;
@@ -27,16 +24,13 @@ type OwnedEntity = {
   entityType: 'PLACE' | 'MANUFACTURER';
 }
 
-// Функция для получения мест
-const fetchPlaces = async (params: FetchPlacesParams): Promise<Place[]> => {
+const fetchPlaces = async (params: { q?: string; status?: string; }): Promise<Place[]> => {
   const { data } = await api.get('/places', { params });
   return data.data;
 };
 
-// Функция для получения "своих" мест для роли business
 const fetchMyOwnedPlaces = async (): Promise<Place[]> => {
   const { data } = await api.get('/entities/owned');
-  // --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Используем наш новый тип для 'entity' ---
   return data.data.filter((entity: OwnedEntity) => entity.entityType === 'PLACE');
 }
 
@@ -63,7 +57,16 @@ export default function PlacesPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-4">Управление Местами</h1>
+      {/* --- ИЗМЕНЕНИЕ: Добавляем заголовок с кнопкой --- */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Управление Местами</h1>
+        <Button asChild>
+          <Link href="/admin/places/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Добавить место
+          </Link>
+        </Button>
+      </div>
 
       {!isBusiness && (
         <div className="flex items-center gap-4 mb-4">

@@ -1,8 +1,8 @@
-// src/app/admin/users/page.tsx
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query'; // <-- ИМПОРТ keepPreviousData
+import { PaginationState } from '@tanstack/react-table';
 import api from '@/lib/api';
 import { columns } from './columns';
 import { User } from '@/types/entities'; 
@@ -11,40 +11,69 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 
-// --- ИЗМЕНЕНИЕ: Функция теперь принимает фильтры ---
-const fetchUsers = async (filters: { q?: string; role?: string; isBlocked?: string }): Promise<User[]> => {
-  // Формируем параметры запроса
+interface UsersApiResponse {
+  data: User[];
+  pagination: {
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+    totalItems: number;
+  };
+}
+
+const fetchUsers = async (filters: { 
+  q?: string; 
+  role?: string; 
+  isBlocked?: string;
+  page: number;
+  limit: number;
+}): Promise<UsersApiResponse> => {
   const params = new URLSearchParams();
   if (filters.q) params.append('q', filters.q);
   if (filters.role && filters.role !== 'all') params.append('role', filters.role);
   if (filters.isBlocked && filters.isBlocked !== 'all') params.append('isBlocked', filters.isBlocked);
+  params.append('page', filters.page.toString());
+  params.append('limit', filters.limit.toString());
 
   const { data } = await api.get(`/admin/users?${params.toString()}`);
-  return data.data; 
+  return data; 
 };
 
 export default function UsersPage() {
-  // --- НОВОЕ: Состояния для фильтров и поиска ---
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [blockedStatus, setBlockedStatus] = useState('all');
+  
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const { data: users, isLoading, error } = useQuery({
-    // --- ИЗМЕНЕНИЕ: Ключ запроса теперь включает фильтры ---
-    queryKey: ['users', debouncedSearchQuery, roleFilter, blockedStatus],
-    queryFn: () => fetchUsers({ q: debouncedSearchQuery, role: roleFilter, isBlocked: blockedStatus }),
-    // keepPreviousData: true, // Раскомментируйте для более плавного UX
+  const { data, isLoading, error } = useQuery<UsersApiResponse>({ // <-- Указываем тип явно
+    queryKey: ['users', debouncedSearchQuery, roleFilter, blockedStatus, pageIndex, pageSize],
+    queryFn: () => fetchUsers({ 
+      q: debouncedSearchQuery, 
+      role: roleFilter, 
+      isBlocked: blockedStatus,
+      page: pageIndex + 1,
+      limit: pageSize,
+    }),
+    // --- ИЗМЕНЕНИЕ: Используем новый синтаксис для сохранения предыдущих данных ---
+    placeholderData: keepPreviousData,
   });
 
   if (error) return <div>Ошибка при загрузке данных: {error.message}</div>;
+  
+  // --- ИЗМЕНЕНИЕ: Безопасное извлечение данных с fallback-значениями ---
+  const users = data?.data ?? [];
+  const pageCount = data?.pagination?.totalPages ?? 0;
 
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-4">Управление пользователями</h1>
 
-      {/* --- НОВОЕ: Панель фильтров --- */}
       <div className="flex items-center gap-4 mb-4">
         <Input
           placeholder="Поиск по никнейму, email..."
@@ -60,7 +89,7 @@ export default function UsersPage() {
             <SelectItem value="all">Все роли</SelectItem>
             <SelectItem value="user">User</SelectItem>
             <SelectItem value="business">Business</SelectItem>
-            <SelectItem value="blogger">Blogger</SelectItem> {/* <-- ДОБАВЛЕНО */}
+            <SelectItem value="blogger">Blogger</SelectItem>
             <SelectItem value="moderator">Moderator</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
@@ -77,13 +106,17 @@ export default function UsersPage() {
         </Select>
       </div>
 
-      {/* --- ИЗМЕНЕНИЕ: Показываем скелет или данные --- */}
-      {isLoading ? (
+      {/* --- ИЗМЕНЕНИЕ: Показываем скелет только при самой первой загрузке --- */}
+      {isLoading && !data ? (
         <div>Загрузка пользователей...</div>
-      ) : users ? (
-        <DataTable columns={columns} data={users} />
       ) : (
-        <p>Пользователи не найдены.</p>
+        <DataTable 
+          columns={columns} 
+          data={users} 
+          pageCount={pageCount}
+          pagination={{ pageIndex, pageSize }}
+          onPaginationChange={setPagination}
+        />
       )}
     </div>
   );

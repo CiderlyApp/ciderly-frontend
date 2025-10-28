@@ -1,12 +1,14 @@
-// src/app/admin/manufacturers/columns.tsx
+// src/app/[locale]/admin/manufacturers/columns.tsx
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link";
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, Archive, ArchiveRestore } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Manufacturer } from "@/types/entities"
+import { Badge } from "@/components/ui/badge" // <-- Импорт Badge
+import { useUpdateManufacturerStatus } from "@/hooks/use-manufacturers"; 
 
 const ActionsCell = ({ row }: { row: { original: Manufacturer } }) => {
   const manufacturer = row.original;
@@ -35,6 +37,17 @@ export const columns: ColumnDef<Manufacturer>[] = [
     accessorKey: "name",
     header: "Название",
   },
+  {
+    accessorKey: "isClosed",
+    header: "Статус",
+    cell: ({ row }) => {
+      const isClosed = row.getValue("isClosed");
+      return isClosed
+        ? <Badge variant="outline">Закрыт</Badge>
+        : <Badge variant="secondary" className="bg-green-100 text-green-800">Активен</Badge>
+    }
+  },
+
   {
     accessorKey: "city",
     header: "Город",

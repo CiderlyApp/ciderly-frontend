@@ -11,8 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { useUpdateUserBlockStatus, useUpdateUserRole } from "@/hooks/use-users"
-import { User } from "@/types/entities"; // <-- ИСПРАВЛЕНО: Импортируем централизованный тип
-
+import { User } from "@/types/entities"; 
+import { Edit } from "lucide-react"; // <-- Добавляем иконку
+import Link from "next/link";
 // Тип User был удален отсюда
 
 // ... остальной код компонента ActionsCell и columns остается без изменений ...
@@ -48,6 +49,12 @@ const ActionsCell = ({ row }: { row: { original: User } }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Действия</DropdownMenuLabel>
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/users/${user.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Редактировать профиль
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
             Копировать ID
           </DropdownMenuItem>
