@@ -71,6 +71,27 @@ export const useGetCiders = () => {
     },
   });
 };
+// <-- ХУК ДЛЯ СМЕНЫ СТАТУСА -->
+export const useUpdateCiderStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ ciderId, status }: { ciderId: string; status: Cider['status'] }) => {
+      const { data } = await api.patch(`/ciders/${ciderId}`, { status });
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['ciders'] });
+      queryClient.invalidateQueries({ queryKey: ['cider', variables.ciderId] });
+      toast.success(`Статус напитка изменен на "${variables.status}"`);
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      toast.error(`Ошибка: ${error.response?.data?.message || 'Не удалось изменить статус.'}`);
+    },
+  });
+};
+
+
+
 // Получение полного списка сидров для справочников
 export const useGetCidersDirectory = () => {
     return useQuery({

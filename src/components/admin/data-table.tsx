@@ -49,7 +49,7 @@ const isManualPagination =
     pageCount: isManualPagination ? pageCount : -1, // Используем -1 как стандартное значение для авто-определения
     state: {
       sorting,
-      pagination: isManualPagination ? pagination : undefined, 
+      ...(isManualPagination && { pagination }),
     },
     onPaginationChange: isManualPagination ? onPaginationChange : undefined,
     onSortingChange: setSorting,

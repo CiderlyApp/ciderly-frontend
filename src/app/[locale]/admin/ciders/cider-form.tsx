@@ -1,13 +1,14 @@
 // src/app/[locale]/admin/ciders/cider-form.tsx
-
 'use client';
 
+import { useState } from 'react'; // <-- ИМПОРТ
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext'; // <-- ИМПОРТ ДЛЯ РОЛИ
 
 import { Cider } from '@/types/entities';
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ type DirectoryItem = { id: number | string; name: string };
 const formSchema = z.object({
   name: z.string().min(2, "Название обязательно."),
   type: z.string().min(1, "Тип обязателен."),
+  otherType: z.string().optional(), // <-- НОВОЕ ПОЛЕ
   style: z.string().optional(),
   abv: z.any().optional(),
   manufacturerId: z.string().uuid({ message: "Выберите производителя." }),
@@ -40,19 +42,25 @@ const formSchema = z.object({
     carbonation: z.number().min(0).max(10),
     body: z.number().min(0).max(10),
   }).optional(),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(), // <-- НОВОЕ ПОЛЕ
 });
 
 type CiderFormValues = z.infer<typeof formSchema>;
 
 export function CiderForm({ initialData }: { initialData?: Cider | null }) {
   const router = useRouter();
+  const { user } = useAuth(); // <-- ПОЛУЧАЕМ ПОЛЬЗОВАТЕЛЯ
   const { mutate: saveCider, isPending } = useCreateOrUpdateCider();
+  
+  // <-- СОСТОЯНИЕ ДЛЯ КАСТОМНОГО ТИПА -->
+  const [isOtherType, setIsOtherType] = useState(initialData?.type === 'Other');
   
   const form = useForm<CiderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      type: initialData?.type || '',
+      type: initialData?.type && ['Cider', 'Perry', 'Apfelwein', 'Ice-cider'].includes(initialData.type) ? initialData.type : 'Other',
+      otherType: initialData?.type && !['Cider', 'Perry', 'Apfelwein', 'Ice-cider'].includes(initialData.type) ? initialData.type : '',
       style: initialData?.style || '',
       abv: initialData?.abv ?? '',
       manufacturerId: initialData?.manufacturerId || undefined,
@@ -62,6 +70,7 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
       imageUrl: initialData?.imageUrl || '',
       tags: initialData?.tags?.join(', ') || '',
       tasteProfile: initialData?.tasteProfile || { sugar: 5, acidity: 5, tannin: 5, carbonation: 5, body: 5 },
+      status: initialData?.status || 'PENDING',
     },
   });
 
@@ -79,11 +88,14 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
     }
     
     const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+    
+    // <-- ЛОГИКА ДЛЯ ПОЛЯ TYPE -->
+    const finalType = values.type === 'Other' ? values.otherType : values.type;
 
     saveCider({
       id: initialData?.id,
       name: values.name,
-      type: values.type,
+      type: finalType, // <-- ИСПОЛЬЗУЕМ ФИНАЛЬНЫЙ ТИП
       style: values.style,
       manufacturerId: values.manufacturerId,
       countryId: Number(values.countryId),
@@ -93,6 +105,7 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
       imageUrl: values.imageUrl,
       tags: tagsArray,
       tasteProfile: values.tasteProfile,
+      status: values.status, // <-- ПЕРЕДАЕМ СТАТУС
     }, {
       onSuccess: () => router.push('/admin/ciders')
     });
@@ -110,10 +123,59 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
                 <FormField control={form.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Название</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="type" render={({ field }) => ( <FormItem><FormLabel>Тип</FormLabel><FormControl><Input placeholder="Напр., Сухой" {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                    <FormField control={form.control} name="style" render={({ field }) => ( <FormItem><FormLabel>Стиль</FormLabel><FormControl><Input placeholder="Напр., Английский" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )}/>
+                    {/* --- ВЫПАДАЮЩИЙ СПИСОК TYPE --- */}
+                    <FormField control={form.control} name="type" render={({ field }) => ( 
+                      <FormItem>
+                        <FormLabel>Тип</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите тип" />
+                            </SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Cider">Cider</SelectItem>
+                            <SelectItem value="Perry">Perry</SelectItem>
+                            <SelectItem value="Apfelwein">Apfelwein</SelectItem>
+                            <SelectItem value="Ice-cider">Ice-cider</SelectItem>
+                            <SelectItem value="Other">Другое</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem> 
+                    )}/>
+                    
+                    {/* --- ВЫПАДАЮЩИЙ СПИСОК STYLE --- */}
+                    <FormField control={form.control} name="style" render={({ field }) => ( 
+                      <FormItem>
+                        <FormLabel>Стиль</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Выберите стиль" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="Brut">Brut</SelectItem>
+                                <SelectItem value="Dry">Dry</SelectItem>
+                                <SelectItem value="Semi-dry">Semi-dry</SelectItem>
+                                <SelectItem value="Semi-sweet">Semi-sweet</SelectItem>
+                                <SelectItem value="Sweet">Sweet</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem> 
+                    )}/>
                 </div>
+
+                {/* --- ПОЛЕ ДЛЯ ДРУГОГО ТИПА --- */}
+                {isOtherType && (
+                  <FormField control={form.control} name="otherType" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Укажите свой тип</FormLabel>
+                      <FormControl><Input placeholder="Напр., Медовуха" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
+
                 {isLoadingManufacturers ? <Skeleton className="h-10 w-full" /> : ( <FormField control={form.control} name="manufacturerId" render={({ field }) => ( <FormItem><FormLabel>Производитель</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Выберите производителя" /></SelectTrigger></FormControl><SelectContent>{manufacturers?.map(m => <SelectItem key={m.id} value={m.id.toString()}>{m.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem> )} /> )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {isLoadingCountries ? <Skeleton className="h-10 w-full" /> : ( <FormField control={form.control} name="countryId" render={({ field }) => ( <FormItem><FormLabel>Страна</FormLabel><Select onValueChange={(value) => { field.onChange(value); form.resetField('regionId'); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Выберите страну" /></SelectTrigger></FormControl><SelectContent>{countries?.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem> )} /> )}
@@ -125,6 +187,24 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
             </div>
             <div className="md:col-span-1 space-y-6">
                 <FormField control={form.control} name="imageUrl" render={({ field }) => ( <FormItem><FormControl><ImageUploader currentImageUrl={field.value} onUploadComplete={(fileKey) => field.onChange(getFileUrlFromKey(fileKey))} uploadType="ciderImage" /></FormControl><FormMessage /></FormItem> )} />
+                
+                {/* --- ПОЛЕ СТАТУСА ДЛЯ АДМИНОВ --- */}
+                {(user?.role === 'admin' || user?.role === 'moderator') && (
+                  <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Статус</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="PENDING">На модерации</SelectItem>
+                          <SelectItem value="APPROVED">Одобрен</SelectItem>
+                          <SelectItem value="REJECTED">Отклонен</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
             </div>
         </div>
         <div className="space-y-4 rounded-md border p-4">
@@ -135,7 +215,6 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
                         <FormLabel className="capitalize">{prop} ({field.value})</FormLabel>
                         <FormControl>
                             <Slider
-                                // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
                                 defaultValue={[field.value ?? 5]}
                                 onValueChange={(value: number[]) => field.onChange(value[0])}
                                 max={10} step={0.5}

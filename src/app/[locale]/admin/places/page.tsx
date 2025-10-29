@@ -1,8 +1,7 @@
-// src/app/admin/places/page.tsx
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { columns } from './columns';
 import { DataTable } from '@/components/admin/data-table';
@@ -11,11 +10,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from '@/context/AuthContext';
 import { Place } from '@/types/entities';
-import { Button } from '@/components/ui/button'; // <-- НОВЫЙ ИМПОРТ
-import Link from 'next/link'; // <-- НОВЫЙ ИМПОРТ
-import { PlusCircle } from 'lucide-react'; // <-- НОВЫЙ ИМПОРТ
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
+import { PaginationState } from '@tanstack/react-table';
 
+// <-- ИЗМЕНЕНИЕ: Добавляем тип для ответа API
+interface PlacesApiResponse {
+  data: Place[];
+  pagination: {
+    totalPages: number;
+    // ...
+  };
+}
 
+// <-- ИЗМЕНЕНИЕ: Добавляем тип OwnedEntity
 type OwnedEntity = {
   id: string;
   name: string;
@@ -24,40 +33,55 @@ type OwnedEntity = {
   entityType: 'PLACE' | 'MANUFACTURER';
 }
 
-const fetchPlaces = async (params: { q?: string; status?: string; }): Promise<Place[]> => {
+const fetchPlaces = async (params: { q?: string; status?: string; page: number; limit: number }): Promise<PlacesApiResponse> => {
   const { data } = await api.get('/places', { params });
-  return data.data;
+  return data;
 };
 
-const fetchMyOwnedPlaces = async (): Promise<Place[]> => {
+// <-- ИЗМЕНЕНИЕ: Добавляем недостающую функцию
+const fetchMyOwnedPlaces = async (): Promise<PlacesApiResponse> => {
   const { data } = await api.get('/entities/owned');
-  return data.data.filter((entity: OwnedEntity) => entity.entityType === 'PLACE');
+  const filteredData = data.data.filter((entity: OwnedEntity) => entity.entityType === 'PLACE');
+  return {
+    data: filteredData as Place[], // Приводим тип для TypeScript
+    pagination: { totalPages: 1 }
+  };
 }
+
 
 export default function PlacesPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('PENDING');
-
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   const isBusiness = user?.role === 'business';
-  const queryKey = isBusiness ? ['my-places'] : ['places', debouncedSearchQuery, statusFilter];
+  
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const queryKey = isBusiness ? ['my-places'] : ['places', debouncedSearchQuery, statusFilter, pageIndex, pageSize];
+  
+  // <-- ИЗМЕНЕНИЕ: Упрощаем логику вызова функции
   const queryFn = isBusiness
     ? fetchMyOwnedPlaces
-    : () => fetchPlaces({ q: debouncedSearchQuery, status: statusFilter });
+    : () => fetchPlaces({ q: debouncedSearchQuery, status: statusFilter, page: pageIndex + 1, limit: pageSize });
 
-  const { data: places, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<PlacesApiResponse>({
     queryKey,
     queryFn,
-    enabled: !!user, 
+    enabled: !!user,
+    placeholderData: keepPreviousData,
   });
 
   if (error) return <div>Ошибка при загрузке: {error.message}</div>;
 
+  const places = data?.data ?? [];
+  const pageCount = data?.pagination?.totalPages ?? 0;
+
   return (
     <div className="container mx-auto py-10">
-      {/* --- ИЗМЕНЕНИЕ: Добавляем заголовок с кнопкой --- */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Управление Местами</h1>
         <Button asChild>
@@ -68,14 +92,14 @@ export default function PlacesPage() {
         </Button>
       </div>
 
-      {!isBusiness && (
-        <div className="flex items-center gap-4 mb-4">
-          <Input
-            placeholder="Поиск по названию, адресу..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
+      <div className="flex items-center gap-4 mb-4">
+        <Input
+          placeholder="Поиск по названию, адресу..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+        {!isBusiness && (
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Фильтр по статусу" />
@@ -85,18 +109,22 @@ export default function PlacesPage() {
               <SelectItem value="APPROVED">Одобренные</SelectItem>
               <SelectItem value="REJECTED">Отклоненные</SelectItem>
               <SelectItem value="ARCHIVED">Архивные</SelectItem>
-              <SelectItem value="all">Все</SelectItem>
+              <SelectItem value="ALL">Все</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      )}
+        )}
+      </div>
       
-      {isLoading ? (
+      {isLoading && !data ? (
         <div>Загрузка...</div>
-      ) : places ? (
-        <DataTable columns={columns} data={places} />
       ) : (
-        <p>Места не найдены.</p>
+        <DataTable
+          columns={columns}
+          data={places}
+          pageCount={pageCount}
+          pagination={{ pageIndex, pageSize }}
+          onPaginationChange={setPagination}
+        />
       )}
     </div>
   );
