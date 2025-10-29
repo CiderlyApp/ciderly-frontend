@@ -3,12 +3,11 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link";
-import { MoreHorizontal, Archive, ArchiveRestore } from "lucide-react"
+import { MoreHorizontal } from "lucide-react" // <-- Удалили лишние
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Manufacturer } from "@/types/entities"
-import { Badge } from "@/components/ui/badge" // <-- Импорт Badge
-import { useUpdateManufacturerStatus } from "@/hooks/use-manufacturers"; 
+import { Badge } from "@/components/ui/badge" 
 
 const ActionsCell = ({ row }: { row: { original: Manufacturer } }) => {
   const manufacturer = row.original;

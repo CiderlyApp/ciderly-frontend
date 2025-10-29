@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, ShieldCheck, ShoppingBag, Building, LogOut, Wine, GlassWater, MessageSquare, ShieldAlert, Star } from 'lucide-react'; // <-- Добавляем Star
+import { LayoutDashboard, Users, ShieldCheck, Building, LogOut, Wine, GlassWater, MessageSquare, ShieldAlert, Star } from 'lucide-react'; // <-- Добавляем Star
 import { Button } from '../ui/button';
 
 const ADMIN_VERSION = "0.3.5";

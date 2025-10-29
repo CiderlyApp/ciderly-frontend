@@ -21,9 +21,18 @@ export interface Report {
   createdAt: string;
 }
 
+// --- ИСПРАВЛЕНО ---
+// Определяем конкретную структуру для объекта пагинации
+interface PaginationInfo {
+  currentPage: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+}
+
 interface ReportsApiResponse {
   reports: Report[];
-  pagination: { /* ... */ };
+  pagination: PaginationInfo; // <-- Используем новый, более строгий тип
 }
 
 // Хук для получения списка жалоб

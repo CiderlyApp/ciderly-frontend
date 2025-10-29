@@ -1,4 +1,4 @@
-// src/app/admin/ciders/page.tsx
+// src/app/[locale]/admin/ciders/page.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -9,18 +9,34 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Cider } from '@/types/entities';
-const fetchCiders = async (): Promise<Cider[]> => {
+
+// --- ИЗМЕНЕНИЕ №1: УТОЧНЯЕМ ТИП ВОЗВРАЩАЕМЫХ ДАННЫХ ИЗ API ---
+// Предполагаем, что API возвращает объект с данными и пагинацией
+interface CidersApiResponse {
+  data: Cider[];
+  pagination: {
+    totalPages: number;
+    // ...другие поля пагинации
+  };
+}
+
+const fetchCiders = async (): Promise<CidersApiResponse> => {
     const { data } = await api.get('/ciders');
-    return data.data; 
+    return data; 
 };
 
 export default function CidersPage() {
-    const { data: ciders, isLoading, error } = useQuery({
+    // --- ИЗМЕНЕНИЕ №2: УКАЗЫВАЕМ ПРАВИЛЬНЫЙ ТИП ДЛЯ useQuery ---
+    const { data: response, isLoading, error } = useQuery<CidersApiResponse>({
         queryKey: ['ciders'],
         queryFn: fetchCiders,
     });
 
     if (error) return <div>Ошибка: {error.message}</div>;
+
+    // --- ИЗМЕНЕНИЕ №3: ИЗВЛЕКАЕМ ДАННЫЕ ИЗ ОТВЕТА ---
+    // Используем пустой массив как fallback, чтобы избежать ошибок
+    const ciders = response?.data ?? [];
 
     return (
         <div className="container mx-auto py-10">
@@ -35,7 +51,9 @@ export default function CidersPage() {
             </div>
             {isLoading ? (
                 <div>Загрузка...</div>
-            ) : ciders ? (
+            // --- ИЗМЕНЕНИЕ №4: ПРОВЕРЯЕМ `response` И ПЕРЕДАЕМ ТОЛЬКО НУЖНЫЕ ПРОПСЫ ---
+            ) : response ? (
+                // Так как мы не передаем pageCount, DataTable автоматически включит клиентскую пагинацию
                 <DataTable columns={columns} data={ciders} />
             ) : (
                 <p>Напитки не найдены.</p>

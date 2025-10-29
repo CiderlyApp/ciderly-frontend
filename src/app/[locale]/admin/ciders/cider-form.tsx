@@ -1,4 +1,5 @@
-// src/app/admin/ciders/cider-form.tsx
+// src/app/[locale]/admin/ciders/cider-form.tsx
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -32,7 +33,6 @@ const formSchema = z.object({
   description: z.string().optional(),
   imageUrl: z.string().optional(),
   tags: z.string().optional(),
-  // --- ИЗМЕНЕНИЕ: tasteProfile теперь не .default(), а .optional() для соответствия ---
   tasteProfile: z.object({
     sugar: z.number().min(0).max(10),
     acidity: z.number().min(0).max(10),
@@ -61,7 +61,6 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
       description: initialData?.description || '',
       imageUrl: initialData?.imageUrl || '',
       tags: initialData?.tags?.join(', ') || '',
-      // --- ИЗМЕНЕНИЕ: Безопасно устанавливаем tasteProfile ---
       tasteProfile: initialData?.tasteProfile || { sugar: 5, acidity: 5, tannin: 5, carbonation: 5, body: 5 },
     },
   });
@@ -136,7 +135,8 @@ export function CiderForm({ initialData }: { initialData?: Cider | null }) {
                         <FormLabel className="capitalize">{prop} ({field.value})</FormLabel>
                         <FormControl>
                             <Slider
-                                defaultValue={[field.value]}
+                                // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
+                                defaultValue={[field.value ?? 5]}
                                 onValueChange={(value: number[]) => field.onChange(value[0])}
                                 max={10} step={0.5}
                             />

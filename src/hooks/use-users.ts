@@ -1,10 +1,11 @@
 // src/hooks/use-users.ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { User } from '@/types/entities'; 
+import { User } from '@/types/entities';
 import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '@/types/api';
+
 export const useUpdateUserBlockStatus = () => {
   const queryClient = useQueryClient();
 

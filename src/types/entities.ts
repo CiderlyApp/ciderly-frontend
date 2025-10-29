@@ -1,6 +1,24 @@
 // src/types/entities.ts
 
-// Тип, который мы переносим
+// 1. Определяем строгие типы для часов работы, чтобы избавиться от 'any'
+type DayWorkingHours = {
+  status: 'open' | 'closed';
+  open?: string;
+  close?: string;
+};
+
+type WorkingHours = {
+  monday?: DayWorkingHours;
+  tuesday?: DayWorkingHours;
+  wednesday?: DayWorkingHours;
+  thursday?: DayWorkingHours;
+  friday?: DayWorkingHours;
+  saturday?: DayWorkingHours;
+  sunday?: DayWorkingHours;
+};
+
+
+// 2. Обновляем типы сущностей, используя новый тип WorkingHours
 export type Place = {
   id: string;
   name: string;
@@ -9,8 +27,8 @@ export type Place = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   averageRating: number | null;
   createdAt: string;
-  description?: string | null; 
-  address?: string | null;    
+  description?: string | null;
+  address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   phone?: string | null;
@@ -22,29 +40,8 @@ export type Place = {
   serves_by_glass?: boolean;
   offers_tastings?: boolean;
   outdoor_seating?: boolean;
-  workingHours?: any; // Оставляем any для сложного объекта
-};
-
-export type User = {
-  id: string
-  nickname: string
-  email: string
-  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger' 
-  isBlocked: boolean
-  createdAt: string
-};
-
-export type Claim = {
-  id: string;
-  userId: string;
-  userNickname: string;
-  entityType: 'PLACE' | 'MANUFACTURER';
-  entityId: string;
-  entityName: string;
-  message: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  adminComment: string | null;
-  createdAt: string;
+  workingHours?: WorkingHours; // <-- ИСПРАВЛЕНО
+  imageUrl?: string | null; // <-- Добавлено поле, которое используется в формах
 };
 
 export type Manufacturer = {
@@ -72,7 +69,38 @@ export type Manufacturer = {
   servesByGlass?: boolean;
   offersTastings?: boolean;
   outdoorSeating?: boolean;
-  workingHours?: any | null; 
+  workingHours?: WorkingHours | null; // <-- ИСПРАВЛЕНО
+};
+
+// 3. Дополняем тип User полями, которые используются в UserForm
+export type User = {
+  id: string;
+  nickname: string;
+  email: string;
+  role: 'user' | 'moderator' | 'business' | 'admin' | 'blogger';
+  isBlocked: boolean;
+  createdAt: string;
+  // Добавленные поля из формы редактирования профиля
+  firstName?: string | null;
+  lastName?: string | null;
+  bio?: string | null;
+  city?: string | null;
+  country?: string | null;
+  gender?: 'male' | 'female' | null;
+};
+
+// Остальные типы остаются без изменений, так как они уже корректны
+export type Claim = {
+  id: string;
+  userId: string;
+  userNickname: string;
+  entityType: 'PLACE' | 'MANUFACTURER';
+  entityId: string;
+  entityName: string;
+  message: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  adminComment: string | null;
+  createdAt: string;
 };
 
 export type Cider = {

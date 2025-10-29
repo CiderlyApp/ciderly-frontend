@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import axios from 'axios';
 import { toast } from 'sonner';
 
-type UploadType = 'avatar' | 'manufacturerLogo' | 'ciderImage' | 'reviewImage'| 'placeImage';
+export type UploadType = 'avatar' | 'manufacturerLogo' | 'ciderImage' | 'reviewImage'| 'placeImage';
 
 // Хук для получения presigned URL
 const useGetPresignedUrl = () => {

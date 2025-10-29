@@ -1,4 +1,4 @@
-// src/app/admin/manufacturers/manufacturer-form.tsx
+// src/app/[locale]/admin/manufacturers/manufacturer-form.tsx
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -21,15 +21,14 @@ import { WorkingHoursInput } from '@/components/admin/working-hours-input';
 
 type DirectoryItem = { id: number | string; name: string };
 
-// Обновленная схема валидации
 const formSchema = z.object({
   name: z.string().min(2, "Название обязательно."),
   countryId: z.string().min(1, "Страна обязательна."),
   regionId: z.string().min(1, "Регион обязателен."),
   city: z.string().optional(),
   address: z.string().optional(),
-  latitude: z.union([z.string(), z.number()]).transform(v => v === '' ? null : Number(v)).nullable(),
-  longitude: z.union([z.string(), z.number()]).transform(v => v === '' ? null : Number(v)).nullable(),
+  latitude: z.union([z.string(), z.number()]).transform(v => v === '' || v == null ? null : Number(v)).nullable(),
+  longitude: z.union([z.string(), z.number()]).transform(v => v === '' || v == null ? null : Number(v)).nullable(),
   website: z.string().url().optional().or(z.literal('')),
   phone: z.string().optional(),
   description: z.string().optional(),
@@ -41,13 +40,19 @@ const formSchema = z.object({
   workingHours: z.any().optional(),
 });
 
-type ManufacturerFormValues = z.infer<typeof formSchema>;
+// --- ИЗМЕНЕНИЕ №1: Создаем ДВА типа ---
+// Тип для данных ВНУТРИ формы (до валидации). Zod сам поймет, что latitude/longitude здесь - string | number.
+type ManufacturerFormInput = z.input<typeof formSchema>;
+// Тип для данных ПОСЛЕ валидации (после transform). Здесь latitude/longitude - number | null.
+type ManufacturerFormOutput = z.output<typeof formSchema>;
+
 
 export function ManufacturerForm({ initialData }: { initialData?: Manufacturer | null }) {
   const router = useRouter();
   const { mutate: saveManufacturer, isPending } = useCreateOrUpdateManufacturer();
 
-  const form = useForm<ManufacturerFormValues>({
+  // --- ИЗМЕНЕНИЕ №2: Используем ВХОДНОЙ тип для useForm ---
+  const form = useForm<ManufacturerFormInput>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -55,8 +60,9 @@ export function ManufacturerForm({ initialData }: { initialData?: Manufacturer |
       regionId: initialData?.regionId?.toString() || undefined,
       city: initialData?.city || '',
       address: initialData?.address || '',
-      latitude: initialData?.latitude ?? '',
-      longitude: initialData?.longitude ?? '',
+      // Значения по умолчанию должны соответствовать ВХОДНОМУ типу (string | number)
+      latitude: initialData?.latitude?.toString() ?? '',
+      longitude: initialData?.longitude?.toString() ?? '',
       website: initialData?.website || '',
       phone: initialData?.phone || '',
       description: initialData?.description || '',
@@ -73,10 +79,13 @@ export function ManufacturerForm({ initialData }: { initialData?: Manufacturer |
   const { data: countries, isLoading: isLoadingCountries } = useQuery<DirectoryItem[]>({ queryKey: ['countries'], queryFn: async () => (await api.get('/countries')).data.data });
   const { data: regions, isLoading: isLoadingRegions } = useQuery<DirectoryItem[]>({ queryKey: ['regions', selectedCountryId], queryFn: async () => (await api.get(`/regions?countryId=${selectedCountryId}`)).data.data, enabled: !!selectedCountryId });
 
-  const onSubmit = (values: ManufacturerFormValues) => {
-    saveManufacturer({ 
-      id: initialData?.id, 
-      ...values,
+  // --- ИЗМЕНЕНИЕ №3: Типизируем `values` ВЫХОДНЫМ типом ---
+  // Функция onSubmit вызывается ТОЛЬКО после успешной валидации,
+  // поэтому `values` здесь будут иметь тип `ManufacturerFormOutput`.
+  const onSubmit = (values: ManufacturerFormOutput) => {
+    saveManufacturer({
+      id: initialData?.id,
+      ...values, // `values` уже содержат latitude/longitude как number | null
       countryId: Number(values.countryId),
       regionId: Number(values.regionId)
     }, {
@@ -91,9 +100,12 @@ export function ManufacturerForm({ initialData }: { initialData?: Manufacturer |
   };
 
   return (
+    // Теперь все `form.control` и `form.handleSubmit` будут работать без ошибок типов
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+<form
+  onSubmit={form.handleSubmit((values) => onSubmit(values as ManufacturerFormOutput))}
+  className="space-y-8"
+>        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
             <FormField control={form.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Название</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
             
@@ -107,7 +119,6 @@ export function ManufacturerForm({ initialData }: { initialData?: Manufacturer |
                 <FormField control={form.control} name="address" render={({ field }) => ( <FormItem><FormLabel>Адрес</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
             </div>
 
-            {/* Координаты. В будущем здесь будет карта. */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="latitude" render={({ field }) => ( <FormItem><FormLabel>Широта</FormLabel><FormControl><Input type="number" step="any" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />
                 <FormField control={form.control} name="longitude" render={({ field }) => ( <FormItem><FormLabel>Долгота</FormLabel><FormControl><Input type="number" step="any" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem> )} />

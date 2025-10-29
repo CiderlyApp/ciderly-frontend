@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useGetOwnedEntities, useGetBusinessReviews } from '@/hooks/use-dashboard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ReviewCard } from '@/components/admin/business/review-card';
+import { ReviewCard } from '@/components/business/review-card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type OwnedEntity = {

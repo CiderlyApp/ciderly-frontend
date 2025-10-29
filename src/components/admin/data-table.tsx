@@ -7,9 +7,11 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
-  SortingState, // <-- Импорт для сортировки
-  getSortedRowModel, // <-- Импорт для сортировки
+  SortingState,
+  getSortedRowModel,
   useReactTable,
+  PaginationState,
+  OnChangeFn,
 } from "@tanstack/react-table"
 
 import {
@@ -20,31 +22,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-// --- НОВЫЙ КОМПОНЕНТ ---
 import { DataTablePagination } from "./data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pageCount?: number
+  pagination?: PaginationState
+  onPaginationChange?: OnChangeFn<PaginationState>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pageCount,
+  pagination,
+  onPaginationChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
 
+const isManualPagination =
+  pageCount !== undefined && !!pagination && !!onPaginationChange;
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting, // <-- Добавляем обработчик сортировки
-    getSortedRowModel: getSortedRowModel(), // <-- Включаем сортировку
+    pageCount: isManualPagination ? pageCount : -1, // Используем -1 как стандартное значение для авто-определения
     state: {
       sorting,
+      pagination: isManualPagination ? pagination : undefined, 
     },
+    onPaginationChange: isManualPagination ? onPaginationChange : undefined,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: !isManualPagination ? getPaginationRowModel() : undefined,
+    
+    manualPagination: isManualPagination, // <-- Передаем булеву переменную
   })
 
   return (
@@ -86,7 +99,6 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
        
-      {/* --- ИСПОЛЬЗУЕМ НОВЫЙ КОМПОНЕНТ --- */}
       <DataTablePagination table={table} />
     </div>
   )

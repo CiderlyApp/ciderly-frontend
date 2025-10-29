@@ -1,4 +1,4 @@
-// src/app/admin/reports/page.tsx
+// src/app/[locale]/admin/reports/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,9 +6,20 @@ import { DataTable } from '@/components/admin/data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetReports } from '@/hooks/use-reports';
 import { columns } from './columns';
+// --- НОВЫЙ ИМПОРТ ---
+import { PaginationState } from '@tanstack/react-table';
 
 export default function ReportsPage() {
   const [statusFilter, setStatusFilter] = useState('PENDING');
+
+  // --- ИЗМЕНЕНИЕ №1: ДОБАВЛЯЕМ СОСТОЯНИЕ ДЛЯ ПАГИНАЦИИ ---
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // Передаем состояние пагинации в хук (если хук это поддерживает)
+  // Если ваш useGetReports не принимает page/limit, его тоже нужно будет обновить
   const { data: response, isLoading, error } = useGetReports(statusFilter);
 
   const reports = response?.reports ?? [];
@@ -30,7 +41,17 @@ export default function ReportsPage() {
 
       {isLoading && <p>Загрузка жалоб...</p>}
       {error && <p className="text-destructive">Ошибка: {error.message}</p>}
-      {!isLoading && <DataTable columns={columns} data={reports} pageCount={pageCount} pagination={{pageIndex: 0, pageSize: 10}} onPaginationChange={() => {}} />}
+      
+      {/* --- ИЗМЕНЕНИЕ №2: ПРАВИЛЬНО ПЕРЕДАЕМ ПРОПСЫ --- */}
+      {!isLoading && (
+        <DataTable 
+            columns={columns} 
+            data={reports} 
+            pageCount={pageCount}
+            pagination={{ pageIndex, pageSize }}
+            onPaginationChange={setPagination} // Передаем функцию для обновления состояния
+        />
+      )}
     </div>
   );
 }
